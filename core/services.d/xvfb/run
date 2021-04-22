@@ -1,0 +1,4 @@
+#!/usr/bin/with-contenv bash
+
+rm -rf /tmp/.X0-lock
+/usr/bin/Xvfb ${DISPLAY} -screen ${SCREEN} ${SCREEN_WIDTH}x${SCREEN_HEIGHT}x${SCREEN_DEPTH}

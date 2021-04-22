@@ -1,0 +1,15 @@
+#!/usr/bin/with-contenv bash
+
+echo "Starting android screen copy..."
+screen_copy_active=false
+while [ "$screen_copy_active" == false ]; do
+  windowid="$(xwininfo -root -tree | grep scrcpy | awk '{print $1}')"
+  if [ "$windowid" == "" ]; then
+    echo "Starting scrcpy"
+    scrcpy 
+    sleep 1
+  else
+    echo "scrcpy started"
+    screen_copy_active=true
+  fi
+done

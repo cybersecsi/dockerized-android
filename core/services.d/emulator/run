@@ -1,0 +1,101 @@
+#!/usr/bin/with-contenv bash
+
+#
+# $1: a string representing the device name
+# $2: a string representing the avd_name
+# $3: a string representing the size of the data partition
+#
+function prepare_avd () {
+    # replace spaces with -
+    local avd_path="$ANDROID_HOME/android_emulator"
+    # create AVD
+    avdmanager create avd -f -n $2 -b $IMG_TYPE/$SYS_IMG -k "system-images;android-$API_LEVEL;$IMG_TYPE;$SYS_IMG" -d "$device" -p $avd_path
+    # write dp size in config file
+    echo -e "\ndisk.dataPartition.size=$3"
+    echo "AVD created successfully"
+}
+
+function check_keyboard_support () {
+    echo "Checking if keyboard is active"
+    if [ -f "$configDir" ]; then
+        keyboard_active=$(grep hw.keyboard= ${configDir} | cut -d "=" -f2)
+        if [ "$keyboard_active" = "no" ]; then
+            echo "Keyboard need to be fixed"
+            sed -i 's/hw.keyboard=no/hw.keyboard=yes/gI' $configDir
+        fi
+    fi
+}
+
+#
+# $1: env var to check
+# $2: string representing the name of the env variable
+#
+function check_env_var () {
+    if [ -z "$1" ]; then
+        echo "ENV variable $2 unset. Exiting."
+        exit 1
+    fi
+}
+
+function run_emulator () {
+    echo "Running emulator"
+    echo "Device: $device"
+    echo "Emulator Arguments: $emulator_args"
+    echo "AVD Name: $avd_name"
+    echo "Checking if first boot..."
+    # Start check if first boot
+    local is_first_boot=true
+    if [ -f "$configDir" ]; then
+        echo "config file exists in $configDir"
+        # First argument is the device name
+        deviceNameCheck="grep $device_name $configDir"
+        if [ -z "$deviceNameCheck" ]; then
+            echo "Device name $device_name found in config file. Assuming device was already initialized"
+            is_first_boot=false
+        else
+            echo "Device name $device_name NOT found in config file. Assuming new device"
+            # Nothing to do, already set to true
+        fi
+    else
+        echo "No config file at $configDir. Assuming new device"
+    fi
+    # End check if first boot
+    if [ "$is_first_boot" = true ]; then 
+        echo "Creating new AVD..."
+        prepare_avd "\"$device\"" $avd_name $dp_size
+    fi
+    
+    echo "Running emulator..."
+    check_keyboard_support
+    sleep 1
+
+     if [ "$is_first_boot" = true ]; then 
+        # If first run wipe data
+        emulator -avd $avd_name -gpu swiftshader_indirect -accel on -wipe-data -writable-system -verbose $emulator_args
+     else
+        emulator -avd $avd_name -gpu swiftshader_indirect -accel on -writable-system $emulator_args
+     fi
+
+     echo "Have a nice day!"
+}
+
+function main () {
+    check_env_var $ANDROID_HOME "ANDROID_HOME"
+    check_env_var $ANDROID_VERSION "ANDROID_VERSION"
+    check_env_var $API_LEVEL "API_LEVEL"
+    check_env_var $PROCESSOR "PROCESSOR"
+    check_env_var $SYS_IMG "SYS_IMG"
+    check_env_var $IMG_TYPE "IMG_TYPE"
+
+    ROOT="/root"
+    configDir="${ROOT}/android_emulator/config.ini"
+    device=${DEVICE:-"Nexus 5"}
+    emulator_args=${EMULATOR_ARGS:-""}
+    avd_name=${AVD_NAME:-"${device// /_}_$ANDROID_VERSION"}
+    dp_size=${DP_SIZE:-"550m"}
+    run_emulator
+}
+
+# Execute the emulator fn
+
+main

@@ -1,0 +1,13 @@
+version: "3.8"
+services:
+    core:
+        image: effesociety/dockerized-android-core-real-device
+        ports:
+            - "6080:6080"
+            - "5555:5555"
+            - "4242:4242"
+        privileged: true
+    ui:
+        image: effesociety/dockerized-android-ui
+        ports:
+            - "8080:80"

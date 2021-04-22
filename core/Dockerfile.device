@@ -1,0 +1,149 @@
+#################################
+#           STAGE 1             #
+#################################
+
+# First stage: build custom backend
+FROM node:lts-alpine as stage1
+
+RUN apk add tzdata
+# Create backend directory
+WORKDIR /usr/src/backend
+COPY backend .
+RUN yarn install --production && mv node_modules prod_node_modules
+RUN yarn install
+RUN yarn run build
+
+#################################
+#           STAGE 2             #
+#################################
+
+# Second stage: get Android SDK Command Line Tools, Node.js setup and websockify
+FROM alpine:latest as stage2
+
+RUN apk add --update-cache \
+    wget \
+    unzip \
+    curl \
+    git
+
+# Download Android SDK Command Line Tools
+ARG ANDROID_SDK_VERSION=6858069
+ENV ANDROID_SDK_ROOT /opt/android-sdk
+RUN mkdir -p ${ANDROID_SDK_ROOT}/cmdline-tools && \
+    wget -q https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_SDK_VERSION}_latest.zip && \
+    unzip *tools*linux*.zip -d ${ANDROID_SDK_ROOT}/cmdline-tools && \
+    mv ${ANDROID_SDK_ROOT}/cmdline-tools/cmdline-tools ${ANDROID_SDK_ROOT}/cmdline-tools/tools
+
+# Download Node.js
+ENV NODE_LTS_ROOT /opt/nodejs
+RUN mkdir -p ${NODE_LTS_ROOT} && curl -sL https://deb.nodesource.com/setup_lts.x -o ${NODE_LTS_ROOT}/setup_lts.x
+
+# Download websockify
+ENV WEBSOCKIFY_ROOT /opt/websockify
+RUN mkdir -p ${WEBSOCKIFY_ROOT} && git clone https://github.com/novnc/websockify ${WEBSOCKIFY_ROOT}
+
+# Create folder for s6-overlay
+ENV S6_OVERLAY_ROOT /s6-overlay
+RUN mkdir -p ${S6_OVERLAY_ROOT}
+COPY cont-init.d ${S6_OVERLAY_ROOT}/cont-init.d
+COPY services.d/scrcpy ${S6_OVERLAY_ROOT}/services.d/scrcpy
+COPY services.d/websockify ${S6_OVERLAY_ROOT}/services.d/websockify
+COPY services.d/xvfb ${S6_OVERLAY_ROOT}/services.d/xvfb
+COPY services.d/vnc ${S6_OVERLAY_ROOT}/services.d/vnc
+COPY services.d/backend ${S6_OVERLAY_ROOT}/services.d/backend
+# Copy builded backend
+COPY --from=stage1 /usr/src/backend/package.json ${S6_OVERLAY_ROOT}/services.d/backend/package.json
+COPY --from=stage1 /usr/src/backend/prod_node_modules ${S6_OVERLAY_ROOT}/services.d/backend/node_modules
+COPY --from=stage1 /usr/src/backend/build ${S6_OVERLAY_ROOT}/services.d/backend/build
+
+#################################
+#           STAGE 3             #
+#################################
+
+# Third stage: build dockerized-android
+FROM ubuntu:20.04
+
+# Copy from previous stage
+COPY --from=stage2 /opt/android-sdk /opt/android-sdk
+COPY --from=stage2 /opt/nodejs .
+COPY --from=stage2 /opt/websockify /opt/websockify
+COPY --from=stage2 /s6-overlay /etc/
+
+# set the environment variables
+ENV ANDROID_SDK_ROOT /opt/android-sdk
+ENV PATH ${PATH}:${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin:${ANDROID_SDK_ROOT}/cmdline-tools/tools/bin:${ANDROID_SDK_ROOT}/platform-tools:
+
+
+ENV DISPLAY=:0 \
+    SCREEN=0 \
+    SCREEN_WIDTH=1600 \
+    SCREEN_HEIGHT=900 \
+    SCREEN_DEPTH=16 \
+    VIDEO_PATH=/tmp/video \
+    LOG_PATH=/var/log/supervisor \
+    APP_TYPE=Device \
+    LOCAL_PORT=5900 \
+    TARGET_PORT=6080 \
+    NODE_ENV=production \
+    CUSTOM_APP_DEFAULT_PORT=4242 \
+    REAL_DEVICE=true \
+    browser=android \
+    ANDROID_HOME=/root
+
+#S6-Overlay
+ADD https://github.com/just-containers/s6-overlay/releases/download/v2.2.0.1/s6-overlay-amd64-installer /tmp/
+RUN chmod +x /tmp/s6-overlay-amd64-installer && /tmp/s6-overlay-amd64-installer /
+
+RUN bash - setup_lts.x && rm setup_lts.x && apt-get -qqy update && DEBIAN_FRONTEND=noninteractive apt-get -qqy install --no-install-recommends \
+    openjdk-8-jdk \
+    curl \
+    supervisor \
+    nodejs \
+    x11vnc \
+    net-tools \
+    gcc \
+    make \
+    scrcpy \
+    musl-dev \
+    pkgconf \
+    libsdl2-dev \
+    xvfb \
+    rinetd \
+    x11-utils \
+ && apt-get clean all \
+ && rm -rf /var/lib/apt/lists/*
+
+
+
+#=======
+# Install platform-tools
+#=======
+RUN yes | sdkmanager --licenses && \
+    echo y | sdkmanager "platform-tools"
+
+#=============
+# Set WORKDIR
+#=============
+WORKDIR /root/dockerized-android
+
+#===============
+# Expose Ports
+#---------------
+# 5555: ADB connection port
+# 4242: REST API
+# 6080: Websockify
+#===============
+EXPOSE 5555 4242 6080
+
+#======================
+# Add x11vnc config file
+#======================
+COPY configs/x11vnc.pref /etc/apt/preferences.d/
+
+#======================
+# Add utils
+#======================
+COPY utils /root/dockerized-android/utils
+RUN chmod -R +x /root/dockerized-android/utils
+
+ENTRYPOINT ["/init"]
