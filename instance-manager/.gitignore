@@ -22,3 +22,6 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# instances file (a template is provided in the root directory)
+/src/config/instances.json
