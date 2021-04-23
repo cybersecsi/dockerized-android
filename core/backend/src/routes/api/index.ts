@@ -3,10 +3,19 @@ import fileUpload from 'express-fileupload';
 import util from 'util';
 import Logger from '../../loaders/logger';
 
+// Config
+import { FEATURES } from '../../config';
+
+// Types
+import { IFeatures } from '../../types';
+
 const exec = util.promisify(require('child_process').exec);
 const api = express.Router(); //Define Express Router
 
-//Define middlewares to use in different endpoints
+// Define default error message
+const DEFAULT_ERROR_MESSAGE = "Error while processing request";
+
+// Define middlewares to use in different endpoints
 const defaultMiddlewares = [
     express.json(),
     express.urlencoded({extended: true})
@@ -19,15 +28,55 @@ const fileUploadMiddlewares = [
     })
 ]
 
-const DEFAULT_ERROR_MESSAGE = "Error while processing request";
+// Define middleware to check if the feature is available
+const featureAvailableMiddleware = (featureName: string) => {
+    return (req: any, res: any, next: any) => {
+        if (!FEATURES[featureName]){
+            res.status(400).send(DEFAULT_ERROR_MESSAGE);
+        }
+        else {
+            next();
+        }
+    }
+}
 
+// Define middleware to check if a feature should be available only for some kind (emulator or real device)
+const deviceTypeMiddleware = (allowedType: "REAL_DEVIC" | "EMULATOR") => {
+    return (req: any, res: any, next: any) => {
+        const deviceType: "REAL_DEVICE" | "EMULATOR" = process.env.REAL_DEVICE !== undefined ? "REAL_DEVICE" : "EMULATOR";
+        if (deviceType !== allowedType){
+            res.status(400).send(DEFAULT_ERROR_MESSAGE);
+        }
+        else {
+            next();
+        }
+    }
+}
+
+// API
 export default (app: express.Router) => {
     app.use('/api', api)
 
     /**
+     * Endpoint for getting info about the available features
+     */
+    api.get('/features', defaultMiddlewares, (req: any, res: any) => {
+        Logger.info("Received request on /api/device");
+        const availableFeatures: IFeatures = {
+            DEVICEINFO: FEATURES.DEVICEINFO,
+            TERMINAL: FEATURES.TERMINAL,
+            APK: FEATURES.APK,
+            SMS: FEATURES.SMS,
+            FORWARD: FEATURES.FORWARD,
+            REBOOT: FEATURES.REBOOT,
+        }
+        res.send(availableFeatures);
+    })
+
+    /**
      * Endpoint for getting device info
      */
-    api.get('/device', defaultMiddlewares, async (req: any, res: any) => {
+    api.get('/device', featureAvailableMiddleware('DEVICEINFO'), defaultMiddlewares, async (req: any, res: any) => {
         Logger.info("Received request on /api/device");
         try{
             const type = process.env.REAL_DEVICE !== undefined ? "Real Device" : "Emulator";
@@ -54,7 +103,7 @@ export default (app: express.Router) => {
     /**
      * Endpoint for rebooting the device
      */
-    api.get('/reboot', defaultMiddlewares, async (req: any, res: any) => {
+    api.get('/reboot', deviceTypeMiddleware('EMULATOR'), featureAvailableMiddleware('REBOOT'), defaultMiddlewares, async (req: any, res: any) => {
         Logger.info("Received request on /api/reboot");
         try{
             await exec('adb reboot');
@@ -75,7 +124,7 @@ export default (app: express.Router) => {
     /**
      * Endpoint for sending SMS
      */
-    api.post('/sms', defaultMiddlewares, async (req: any, res: any) => {
+    api.post('/sms', deviceTypeMiddleware('EMULATOR'), featureAvailableMiddleware('SMS'), defaultMiddlewares, async (req: any, res: any) => {
         Logger.info("Received request on /api/sms");
 
         /* Get Docker container ID from within container (not needed)
@@ -102,7 +151,7 @@ export default (app: express.Router) => {
     /**
      * Endpoint for installing APK
      */
-    api.post('/apk', fileUploadMiddlewares, async (req: any, res: any) => {
+    api.post('/apk', featureAvailableMiddleware('APK'), fileUploadMiddlewares, async (req: any, res: any) => {
         Logger.info("Received request on /api/apk");
 
         try{
@@ -126,7 +175,7 @@ export default (app: express.Router) => {
     /**
      * Endpoint for Port Forwarding
      */
-    api.post('/forward', defaultMiddlewares, async (req: any, res: any) => {
+    api.post('/forward', featureAvailableMiddleware('FORWARD'), defaultMiddlewares, async (req: any, res: any) => {
         Logger.info("Received request on /api/forward");
         try{
             const portNumber = req.body.portNumber;
@@ -159,7 +208,7 @@ export default (app: express.Router) => {
         res.send(cwd);
     })
 
-    api.post('/terminal', defaultMiddlewares, async (req: any, res: any) => {
+    api.post('/terminal', featureAvailableMiddleware('TERMINAL'), defaultMiddlewares, async (req: any, res: any) => {
         Logger.info("Received request on /api/terminal");
 
         const defaultErrorResponse = {
