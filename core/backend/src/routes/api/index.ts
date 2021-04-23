@@ -50,6 +50,21 @@ const deviceTypeMiddleware = (allowedType: "REAL_DEVIC" | "EMULATOR") => {
     }
 }
 
+// Helper function to get the adb option to address the right device in adb
+const getAdbOption = (): string => {
+    const type: "Real Device" | "Emulator" = process.env.REAL_DEVICE !== undefined ? "Real Device" : "Emulator";
+    if (type === "Emulator"){
+        return "-e"
+    }
+    else if (type === "Real Device" && process.env.REAL_DEVICE_SERIAL){
+        return `-s ${process.env.REAL_DEVICE_SERIAL}`;
+    }
+    else {
+        //If there is more than a device attached it won't work unless SERIAL is specified
+        return "-d";
+    }
+}
+
 // API
 export default (app: express.Router) => {
     app.use('/api', api)
@@ -77,9 +92,11 @@ export default (app: express.Router) => {
         Logger.info("Received request on /api/device");
         try{
             const type = process.env.REAL_DEVICE !== undefined ? "Real Device" : "Emulator";
-            const androidVersion = await exec("adb shell getprop ro.build.version.release");
-            const processor = await exec("adb shell getprop ro.product.cpu.abi");
-            const device = await exec("adb shell getprop ro.product.model"); 
+            //Get adb option to address right device when working with more than one
+            const adbOption = getAdbOption();
+            const androidVersion = await exec(`adb ${adbOption} shell getprop ro.build.version.release`);
+            const processor = await exec(`adb ${adbOption} shell getprop ro.product.cpu.abi`);
+            const device = await exec(`adb ${adbOption} shell getprop ro.product.model`); 
             
             const deviceInfo: IDeviceInfo = {
                 type: FEATURES.DEVICEINFO ? type: "NA",
@@ -103,7 +120,9 @@ export default (app: express.Router) => {
     api.get('/reboot', deviceTypeMiddleware('EMULATOR'), featureAvailableMiddleware('REBOOT'), defaultMiddlewares, async (req: any, res: any) => {
         Logger.info("Received request on /api/reboot");
         try{
-            await exec('adb reboot');
+            //Get adb option to address right device when working with more than one
+            const adbOption = getAdbOption();
+            await exec(`adb ${adbOption} reboot`);
             const defaultRes = {
                 'action': "reboot",
                 'status': "OK"
@@ -130,7 +149,9 @@ export default (app: express.Router) => {
         */
 
         try{
-            const sendSMSCmd = `adb emu sms send ${req.body.phoneNumber} ${req.body.message}`;
+            //Get adb option to address right device when working with more than one
+            const adbOption = getAdbOption();
+            const sendSMSCmd = `adb ${adbOption} emu sms send ${req.body.phoneNumber} ${req.body.message}`;
             exec(sendSMSCmd);
             const defaultRes = {
                 'action': "sms",
@@ -156,7 +177,9 @@ export default (app: express.Router) => {
             const mv = util.promisify(apk.mv);
             await mv(`/tmp/app.apk`);
 
-            const installAPKCmd = `adb install /tmp/app.apk`;
+            //Get adb option to address right device when working with more than one
+            const adbOption = getAdbOption();
+            const installAPKCmd = `adb ${adbOption} install /tmp/app.apk`;
             await exec(installAPKCmd);
 
             const defaultRes = {
@@ -180,7 +203,9 @@ export default (app: express.Router) => {
         try{
             const portNumber = req.body.portNumber;
 
-            const adbForwardCmd = `adb forward tcp:${portNumber} tcp:${portNumber}`;
+            //Get adb option to address right device when working with more than one
+            const adbOption = getAdbOption();
+            const adbForwardCmd = `adb ${adbOption} forward tcp:${portNumber} tcp:${portNumber}`;
             exec(adbForwardCmd);
 
             const rinetdForwardCmd = `/root/dockerized-android/utils/rinetd_forward.sh ${portNumber}`;

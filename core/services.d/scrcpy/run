@@ -4,10 +4,16 @@ echo "Starting android screen copy..."
 screen_copy_active=false
 while [ "$screen_copy_active" == false ]; do
   windowid="$(xwininfo -root -tree | grep scrcpy | awk '{print $1}')"
+  if [ "$COMMAND_RUN" == true ]; then
+    adb kill-server
+    sleep 1
+  fi
+
   if [ "$windowid" == "" ]; then
     echo "Starting scrcpy"
     scrcpy 
     sleep 1
+    COMMAND_RUN=true
   else
     echo "scrcpy started"
     screen_copy_active=true

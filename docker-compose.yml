@@ -1,13 +1,37 @@
 version: "3.8"
 services:
-    core:
+    core-real:
         image: effesociety/dockerized-android-core-real-device
-        ports:
-            - "6080:6080"
-            - "5555:5555"
-            - "4242:4242"
         privileged: true
+        networks:
+            dockerized-android-net:
+                ipv4_address: 193.21.1.2
+        environment: 
+            - TERMINAL=false
+    core-emulator:
+        image: effesociety/dockerized-android-core-emulator-5.0.1
+        privileged: true
+        networks:
+            dockerized-android-net:
+                ipv4_address: 193.21.1.3
     ui:
         image: effesociety/dockerized-android-ui
         ports:
             - "8080:80"
+        networks:
+            dockerized-android-net:
+                ipv4_address: 193.21.1.42
+    instance-manager:
+        image: effesociety/dockerized-android-instance-manager
+        ports:
+            - "7373:7373"
+        networks:
+            dockerized-android-net:
+                ipv4_address: 193.21.1.100
+        volumes:
+            - ./instances.json:/usr/src/instance-manager/instances.json
+networks:
+    dockerized-android-net:
+        ipam:
+            config:
+                - subnet: 193.21.1.1/24

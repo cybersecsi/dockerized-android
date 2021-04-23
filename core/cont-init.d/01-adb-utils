@@ -3,9 +3,7 @@
 function wait_emulator_to_be_ready () {
   boot_completed=false
   while [ "$boot_completed" == false ]; do
-    status="$(adb wait-for-device shell getprop sys.boot_completed | tr -d '\r')"
-    echo "Boot Status: $status"
-
+    status="$(adb -e wait-for-device shell getprop sys.boot_completed | tr -d '\r')"
     if [ "$status" == "1" ]; then
       boot_completed=true
     else
@@ -14,76 +12,81 @@ function wait_emulator_to_be_ready () {
   done
 }
 
-function change_language_if_needed () {
-  if [ ! -z "${LANGUAGE// }" ] && [ ! -z "${COUNTRY// }" ]; then
-    wait_emulator_to_be_ready
-    echo "Language will be changed to ${LANGUAGE}-${COUNTRY}"
-    adb root && adb shell "setprop persist.sys.language $LANGUAGE; setprop persist.sys.country $COUNTRY; stop; start" && adb unroot
-    echo "Language is changed!"
-  fi
-}
-
-function enable_proxy_if_needed () {
-  if [ "$ENABLE_PROXY_ON_EMULATOR" = true ]; then
-    if [ ! -z "${HTTP_PROXY// }" ]; then
-      if [[ $HTTP_PROXY == *"http"* ]]; then
-        protocol="$(echo $HTTP_PROXY | grep :// | sed -e's,^\(.*://\).*,\1,g')"
-        proxy="$(echo ${HTTP_PROXY/$protocol/})"
-        echo "[EMULATOR] - Proxy: $proxy"
-
-        IFS=':' read -r -a p <<< "$proxy"
-
-        echo "[EMULATOR] - Proxy-IP: ${p[0]}"
-        echo "[EMULATOR] - Proxy-Port: ${p[1]}"
-
-        wait_emulator_to_be_ready
-        echo "Enable proxy on Android emulator. Please make sure that docker-container has internet access!"
-        adb root
-
-        echo "Set up the Proxy"
-        adb shell "content update --uri content://telephony/carriers --bind proxy:s:"0.0.0.0" --bind port:s:"0000" --where "mcc=310" --where "mnc=260""
-        sleep 5
-        adb shell "content update --uri content://telephony/carriers --bind proxy:s:"${p[0]}" --bind port:s:"${p[1]}" --where "mcc=310" --where "mnc=260""
-        
-        if [ ! -z "${HTTP_PROXY_USER}" ]; then
-          sleep 2
-          adb shell "content update --uri content://telephony/carriers --bind user:s:"${HTTP_PROXY_USER}" --where "mcc=310" --where "mnc=260""
-        fi
-        if [ ! -z "${HTTP_PROXY_PASSWORD}" ]; then
-          sleep 2
-          adb shell "content update --uri content://telephony/carriers --bind password:s:"${HTTP_PROXY_PASSWORD}" --where "mcc=310" --where "mnc=260""
-        fi
-        
-        adb unroot
-
-        # Mobile data need to be restarted for Android 10 or higher
-        adb shell svc data disable
-        adb shell svc data enable
-      else
-        echo "Please use http:// in the beginning!"
-      fi
+function wait_device_to_be_authorized () {
+  device_authorized=false
+  while [ "$device_authorized" == false ]; do
+    if [ -z "$REAL_DEVICE_SERIAL"]; then
+      status="$(adb devices | grep ${REAL_DEVICE_SERIAL}) | sed 's/^[^ ]* //')"
     else
-      echo "$HTTP_PROXY is not given! Please pass it through environment variable!"
-      exit 1
+      status="$(adb devices 2>&1 | tail -n +2 | sed '/^$/d' | sed '/^emulator/d' | sed 's/^[^ ]* //')"
     fi
-  fi
+
+    if [ "$status" != "unauthorized" ]; then
+      device_authorized=true
+    else
+      sleep 1
+    fi
+  done
 }
 
-function exec_emulator_utils () {
-  wait_emulator_to_be_ready
-  sleep 1
-  change_language_if_needed
-  sleep 1
-  enable_proxy_if_needed
+# All applications to be installed need to be mounted in /root/apk
+function install_on_startup () {
+    # Set ADB option for multiple devices
+    if [ "$REAL_DEVICE" != true ]; then # Emulator
+        ADB_OPTION="-e"
+    elif [ "$REAL_DEVICE" == true ] && [ ! -z "$REAL_DEVICE_SERIAL" ]; then # Real device with serial number set
+        ADB_OPTION="-s ${REAL_DEVICE_SERIAL}"
+    else # Real device without serial number set
+        ADB_OPTION="-d"
+    fi
+
+    for f in /root/dockerized-android/apk/*; do
+        ADB_INSTALL_CMD="adb ${ADB_OPTION} install ${f}"
+        echo $ADB_INSTALL_CMD
+        ${ADB_INSTALL_CMD}
+    done
 }
+
+# Enable unknown sources
+function enable_unknown_sources () {
+    # Set ADB option for multiple devices
+    if [ "$REAL_DEVICE" != true ]; then # Emulator
+        ADB_OPTION="-e"
+    elif [ "$REAL_DEVICE" == true ] && [ ! -z "$REAL_DEVICE_SERIAL" ]; then # Real device with serial number set
+        ADB_OPTION="-s ${REAL_DEVICE_SERIAL}"
+    else # Real device without serial number set
+        ADB_OPTION="-d"
+    fi
+
+    ENABLE_UNKNOWN_SOURCES_CMD="adb ${ADB_OPTION} shell settings put secure install_non_market_apps 1"
+    ${ENABLE_UNKNOWN_SOURCES_CMD}
+}
+
+
+function exec_utils () {
+    if [ "$REAL_DEVICE" != true ]; then # Emulator
+        wait_emulator_to_be_ready
+        sleep 1
+    else 
+        wait_device_to_be_authorized
+        sleep 1
+    fi
+
+    if [ "$INSTALL_ON_STARTUP" = true ]; then
+        install_on_startup
+        sleep 1
+    fi
+
+
+    if [ "$ENABLE_UNKNOWN_SOURCES_" = true ]; then
+        enable_unknown_sources
+        sleep 1
+    fi
+}
+
 
 if [ "$REAL_DEVICE" == true ]; then
   echo "Real device, starting adb server"
   adb start-server
-else
-  exec_emulator_utils &
 fi
-
-
-
-
+exec_utils &
