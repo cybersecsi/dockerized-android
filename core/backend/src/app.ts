@@ -6,7 +6,7 @@ import Loaders from './loaders';
 ****************
 */
 const NODE_ENV = process.env.NODE_ENV || "development";
-const DEFAULT_PORT = process.env.CUSTOM_APP_DEFAULT_PORT || 8080;
+const DEFAULT_PORT = process.env.CUSTOM_APP_DEFAULT_PORT || 4242;
 
 /*
 ******************
