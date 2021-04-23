@@ -5,11 +5,14 @@ import Grid from '@material-ui/core/Grid';
 // Containers
 import { Header, Device, Toolbox, Footer } from './containers';
 
+// Cross Screen
+import CrossScreen from './cross-screen';
+
 // Config
 import { GRAPHIC } from './config';
 
 // Providers
-import { SnackbarProvider } from './context';
+import { FeaturesProvider, SnackbarProvider } from './context';
 
 const App = () => {
 
@@ -23,20 +26,26 @@ const App = () => {
   }, []);
 
   return (
-    <SnackbarProvider>
-      <Header />
-      <Box className="content-container">
-        <Grid container justify="center" spacing={3}>
-          <Grid item xs={6}>
-            <Device numCol={GRAPHIC.NUM_COL}/>
+    <FeaturesProvider>
+      <SnackbarProvider>
+        {/* Cross Screen component */}
+        <CrossScreen />
+
+        {/* UI structure */}
+        <Header />
+        <Box className="content-container">
+          <Grid container justify="center" spacing={3}>
+            <Grid item xs={6}>
+              <Device numCol={GRAPHIC.NUM_COL}/>
+            </Grid>
+            <Grid item xs={6} className="flex column">
+              <Toolbox/>
+            </Grid>
           </Grid>
-          <Grid item xs={6} className="flex column">
-            <Toolbox/>
-          </Grid>
-        </Grid>
-      </Box>
-      <Footer />
-    </SnackbarProvider>
+        </Box>
+        <Footer />
+      </SnackbarProvider>
+    </FeaturesProvider>
   );
 }
 

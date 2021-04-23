@@ -8,13 +8,13 @@ import Terminal from 'terminal-in-react';
 import { useResizeDetector } from 'react-resize-detector';
 
 //Context
-import { useSnackbar } from '../../context';
+import { useFeatures, useSnackbar } from '../../context';
 
 //Config
 import { BACKEND_ENDPOINT } from '../../config';
 
 //Types 
-import { ISnackbarData } from '../../types';
+import { IFeatures, ISnackbarData } from '../../types';
 
 interface CustomTerminalProps {
     cwd: string,
@@ -22,6 +22,7 @@ interface CustomTerminalProps {
 }
 
 const CustomTerminal = (props: CustomTerminalProps) => {
+    const availableFeatures: IFeatures = useFeatures();
     const { setSnackbarData, closeSnackbar } = useSnackbar();
     const { height, ref } = useResizeDetector();
     
@@ -36,7 +37,7 @@ const CustomTerminal = (props: CustomTerminalProps) => {
             <Typography variant="h5" component="h2">
                 Terminal
             </Typography>
-            <div className="custom-terminal pt-3 grow" ref={ref}>
+            <div className={`custom-terminal pt-3 grow`} ref={ref}>
                 <Terminal
                 promptSymbol={`${props.cwd} > `}
                 hideTopBar={true}
@@ -46,7 +47,11 @@ const CustomTerminal = (props: CustomTerminalProps) => {
                 backgroundColor='black'
                 barColor='black'
                 style={{ fontWeight: "bold", fontSize: "1em" }}
-                commandPassThrough={(cmd: string, print: (data: string) => void) => {               
+                commandPassThrough={(cmd: string, print: (data: string) => void) => {     
+                    if(!availableFeatures.TERMINAL){
+                        return;
+                    }
+                    
                     const terminalArgs = {
                         'arg': cmd
                     }

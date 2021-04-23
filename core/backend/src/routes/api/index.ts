@@ -7,7 +7,7 @@ import Logger from '../../loaders/logger';
 import { FEATURES } from '../../config';
 
 // Types
-import { IFeatures } from '../../types';
+import { IFeatures, IDeviceInfo } from '../../types';
 
 const exec = util.promisify(require('child_process').exec);
 const api = express.Router(); //Define Express Router
@@ -76,7 +76,7 @@ export default (app: express.Router) => {
     /**
      * Endpoint for getting device info
      */
-    api.get('/device', featureAvailableMiddleware('DEVICEINFO'), defaultMiddlewares, async (req: any, res: any) => {
+    api.get('/device', defaultMiddlewares, async (req: any, res: any) => {
         Logger.info("Received request on /api/device");
         try{
             const type = process.env.REAL_DEVICE !== undefined ? "Real Device" : "Emulator";
@@ -84,11 +84,11 @@ export default (app: express.Router) => {
             const processor = await exec("adb shell getprop ro.product.cpu.abi");
             const device = await exec("adb shell getprop ro.product.model"); 
             
-            const deviceInfo = {
-                'type': type,
-                'androidVersion': androidVersion["stdout"].replace("\r\n",""),
-                'processor': processor["stdout"].replace("\r\n",""),
-                'device': device["stdout"].replace("\r\n","")
+            const deviceInfo: IDeviceInfo = {
+                type: FEATURES.DEVICEINFO ? type: "NA",
+                androidVersion: FEATURES.DEVICEINFO ? androidVersion["stdout"].replace("\r\n",""): "NA",
+                processor: FEATURES.DEVICEINFO ? processor["stdout"].replace("\r\n",""): "NA",
+                device: FEATURES.DEVICEINFO ? device["stdout"].replace("\r\n","") : "NA",
             }
             
             res.send(deviceInfo);

@@ -1,6 +1,7 @@
 export const BACKEND_ENDPOINT: { [properties: string ]: string } = {
     API: "http://localhost:4242",
     VNC: "ws://localhost:6080",
+    PATH_FEATURES: "/api/features",
     PATH_TERMINAL: "/api/terminal",
     PATH_CWD: "/api/cwd",
     PATH_DEVICE: "/api/device",
