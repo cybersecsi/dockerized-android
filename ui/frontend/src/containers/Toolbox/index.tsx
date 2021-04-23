@@ -1,6 +1,6 @@
 import {useState, useEffect, createRef} from 'react';
 import axios from 'axios';
-import {Grid, Card, CardActions, CardContent, Button, Typography, List, ListItem, TextField} from '@material-ui/core';
+import {Grid, Card, CardActions, CardContent, Button, Typography, List, ListItem, TextField, Box} from '@material-ui/core';
 
 // Icons
 import ReplayIcon from '@material-ui/icons/Replay';
@@ -14,17 +14,18 @@ import ForwardIcon from '@material-ui/icons/Forward';
 import { BACKEND_ENDPOINT } from '../../config';
 
 // Context
-import { useSnackbar } from '../../context';
+import { useFeatures, useSnackbar } from '../../context';
 
 // Components
 import { CustomModal, CustomDropzone, CustomTerminal } from '../../components';
 
 // Types
-import { IDeviceInfo, IModalData } from '../../types';
+import { IDeviceInfo, IFeatures, IModalData } from '../../types';
 
 const Toolbox = () => {
+    const availableFeatures: IFeatures = useFeatures();
     const { closeSnackbar, setSnackbarData } = useSnackbar();
-    const [deviceInfo, setDeviceInfo] = useState<IDeviceInfo>({type: "", androidVersion: "", processor: "", device: ""});
+    const [deviceInfo, setDeviceInfo] = useState<IDeviceInfo | null>();
     const [modalData, setModalData] = useState<IModalData>({open: false, title: "", body: <></>, closeModal: () => null});
     const [fileData, setFileData] = useState<any>(null);
 
@@ -62,7 +63,9 @@ const Toolbox = () => {
         }
 
         getCwd();
-        getDeviceInfo();
+        if(availableFeatures.DEVICEINFO || !deviceInfo){
+            getDeviceInfo();
+        }
     }, []);
 
 
@@ -71,6 +74,11 @@ const Toolbox = () => {
     }
 
     const rebootDevice = async () => {
+        if(!availableFeatures.REBOOT){
+            setSnackbarData({open: true, msg: "This feature is disabled", severity: "error", closeSnackbar: closeSnackbar});
+            return;
+        }
+
         try{
             await axios.get(`${BACKEND_ENDPOINT.API}${BACKEND_ENDPOINT.PATH_REBOOT}`);
             setSnackbarData({open: true, msg: "Device rebooting...", severity: "success", closeSnackbar: closeSnackbar});
@@ -111,6 +119,11 @@ const Toolbox = () => {
     }
 
     const sendSMS = async () => {
+        if(!availableFeatures.SMS){
+            setSnackbarData({open: true, msg: "This feature is disabled", severity: "error", closeSnackbar: closeSnackbar});
+            return;
+        }
+
         if(!phoneNumber.current || !smsBody.current){
             setSnackbarData({open: true, msg: "Phone number or SMS body are wrong", severity: "error", closeSnackbar: closeSnackbar});
             return;
@@ -132,6 +145,11 @@ const Toolbox = () => {
     }
 
     const installAPK = async () => {
+        if(!availableFeatures.APK){
+            setSnackbarData({open: true, msg: "This feature is disabled", severity: "error", closeSnackbar: closeSnackbar});
+            return;
+        }
+
         const formData = new FormData();
         formData.append('file', fileData); // appending file
         try{
@@ -166,6 +184,11 @@ const Toolbox = () => {
     }
 
     const portForward = async () => {
+        if(!availableFeatures.FORWARD){
+            setSnackbarData({open: true, msg: "This feature is disabled", severity: "error", closeSnackbar: closeSnackbar});
+            return;
+        }
+
         try{           
             const forwardParams = {
                 'portNumber': portNumber.current.value ?? "0",
@@ -185,10 +208,10 @@ const Toolbox = () => {
                 Device Info
             </Typography>
             <List>
-                <ListItem disableGutters={true}><b>Type:&nbsp;</b> {deviceInfo.type ?? ""}</ListItem>
-                <ListItem disableGutters={true}><b>Android version:&nbsp;</b> {deviceInfo.androidVersion ?? ""}</ListItem>
-                <ListItem disableGutters={true}><b>Processor:&nbsp;</b> {deviceInfo.processor ?? ""}</ListItem>
-                <ListItem disableGutters={true}><b>Device:&nbsp;</b> {deviceInfo.device ?? ""}</ListItem>
+                <ListItem disableGutters={true}><b>Type:&nbsp;</b> {deviceInfo?.type ?? ""}</ListItem>
+                <ListItem disableGutters={true}><b>Android version:&nbsp;</b> {deviceInfo?.androidVersion ?? ""}</ListItem>
+                <ListItem disableGutters={true}><b>Processor:&nbsp;</b> {deviceInfo?.processor ?? ""}</ListItem>
+                <ListItem disableGutters={true}><b>Device:&nbsp;</b> {deviceInfo?.device ?? ""}</ListItem>
             </List>
         </>
     )
@@ -215,30 +238,25 @@ const Toolbox = () => {
                             {DeviceInfo}
                         </CardContent>
                         <CardActions>
-                            {deviceInfo?.type === "Emulator" && (
-                                <>
-                                    <Button variant="contained" color="primary" className="full-width" onClick={rebootDevice} startIcon={<ReplayIcon />}>Reboot</Button>
-                                    <Button variant="contained" color="primary" className="full-width" onClick={openSMSModal} startIcon={<SmsIcon />}>SMS</Button>
-                                </>
-                            )}
-
+                                <Button disabled={!availableFeatures.REBOOT} variant="contained" color="primary" className="full-width" onClick={rebootDevice} startIcon={<ReplayIcon />}>Reboot</Button>
+                                <Button disabled={!availableFeatures.SMS} variant="contained" color="primary" className="full-width" onClick={openSMSModal} startIcon={<SmsIcon />}>SMS</Button>
                         </CardActions>
                         <CardActions>
-                            <Button variant="contained" color="primary" className="full-width" onClick={openPortForwardModal} startIcon={<ForwardIcon />}>Forward Port</Button>
+                            <Button disabled={!availableFeatures.FORWARD} variant="contained" color="primary" className="full-width" onClick={openPortForwardModal} startIcon={<ForwardIcon />}>Forward Port</Button>
                         </CardActions>
                     </Card>
                 </Grid>
                 <Grid item xs={6} className="flex">
-                    <Card className="full-width">
-                        <CardContent>
+                    <Card className="full-width relative">
+                        <CardContent className={`${!availableFeatures.APK && 'disabledFeatureOverlay'}`}>
                             {InstallAPKContent}
                         </CardContent>
                     </Card>
                 </Grid>
             </Grid>
 
-            <Card className="mt-4 flex grow">
-                <CardContent className="flex grow column">
+            <Card className="mt-4 flex grow relative">
+                <CardContent className={`flex grow column ${!availableFeatures.TERMINAL && 'disabledFeatureOverlay'}`}>
                     <CustomTerminal cwd={cwd} onCwdChange={setCwd} key={cwd}/>
                 </CardContent>
             </Card>

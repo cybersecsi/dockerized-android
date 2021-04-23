@@ -109,6 +109,7 @@ ENV PATH ${PATH}:${ANDROID_HOME}/build-tools
 # The following variables are used to set the availability of backend features
 # In the backend ('core/src/config/index.ts') these features are automatically available if not specified
 # (You have to set these only to DISABLE these features)
+# ENV DEVICEINFO
 # ENV TERMINAL
 # ENV APK
 # ENV FORWARD

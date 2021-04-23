@@ -44,7 +44,7 @@ code {
   height: 0;
 }
 
-.hover-icon{
+.hover-icon {
   transition: all 0.15s linear 0s!important;
   opacity: 0.5;
   &:hover{
@@ -52,8 +52,24 @@ code {
   }
 }
 
-.full-width{
+.full-width {
   width:100%!important;
+}
+
+.relative{
+  position: relative;
+}
+
+.disabledFeatureOverlay:after{
+  content: "";
+  display: block;
+  position: absolute; /* could also be absolute */ 
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 10;
+  background-color: rgba(0,0,0,0.5);
 }
 
 /* START CUSTOM MARGINS */
