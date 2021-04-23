@@ -46,7 +46,7 @@ const Toolbox = () => {
                 return;
             }
             try{
-                const deviceInfo = await axios.get(`${BACKEND_ENDPOINT.CORE_PREFIX}${instances[currentInstance].address}:${BACKEND_ENDPOINT.CORE_PORT}${BACKEND_ENDPOINT.PATH_DEVICE}`);
+                const deviceInfo = await axios.get(`${BACKEND_ENDPOINT.CORE_PREFIX}${instances[currentInstance].address}:${instances[currentInstance].core_port}${BACKEND_ENDPOINT.PATH_DEVICE}`);
                 setDeviceInfo(deviceInfo.data);
             }
             catch (err){
@@ -59,7 +59,7 @@ const Toolbox = () => {
                 return;
             }
             try{
-                const nextCwd = await axios.get(`${BACKEND_ENDPOINT.CORE_PREFIX}${instances[currentInstance].address}:${BACKEND_ENDPOINT.CORE_PORT}${BACKEND_ENDPOINT.PATH_CWD}`);
+                const nextCwd = await axios.get(`${BACKEND_ENDPOINT.CORE_PREFIX}${instances[currentInstance].address}:${instances[currentInstance].core_port}${BACKEND_ENDPOINT.PATH_CWD}`);
                 setCwd(nextCwd.data);
             }
             catch (err){
@@ -90,7 +90,7 @@ const Toolbox = () => {
         }
 
         try{
-            await axios.get(`${BACKEND_ENDPOINT.CORE_PREFIX}${instances[currentInstance].address}:${BACKEND_ENDPOINT.CORE_PORT}${BACKEND_ENDPOINT.PATH_REBOOT}`);
+            await axios.get(`${BACKEND_ENDPOINT.CORE_PREFIX}${instances[currentInstance].address}:${instances[currentInstance].core_port}${BACKEND_ENDPOINT.PATH_REBOOT}`);
             setSnackbarData({open: true, msg: "Device rebooting...", severity: "success", closeSnackbar: closeSnackbar});
         }
         catch (err){
@@ -148,7 +148,7 @@ const Toolbox = () => {
         }
         
         try{           
-            await axios.post(`${BACKEND_ENDPOINT.CORE_PREFIX}${instances[currentInstance].address}:${BACKEND_ENDPOINT.CORE_PORT}${BACKEND_ENDPOINT.PATH_SMS}`, smsParams);
+            await axios.post(`${BACKEND_ENDPOINT.CORE_PREFIX}${instances[currentInstance].address}:${instances[currentInstance].core_port}${BACKEND_ENDPOINT.PATH_SMS}`, smsParams);
             setSnackbarData({open: true, msg: "SMS sent", severity: "success", closeSnackbar: closeSnackbar});
         }
         catch (err){
@@ -169,7 +169,7 @@ const Toolbox = () => {
         const formData = new FormData();
         formData.append('file', fileData); // appending file
         try{
-            await axios.post(`${BACKEND_ENDPOINT.CORE_PREFIX}${instances[currentInstance].address}:${BACKEND_ENDPOINT.CORE_PORT}${BACKEND_ENDPOINT.PATH_APK}`, formData);
+            await axios.post(`${BACKEND_ENDPOINT.CORE_PREFIX}${instances[currentInstance].address}:${instances[currentInstance].core_port}${BACKEND_ENDPOINT.PATH_APK}`, formData);
             setSnackbarData({open: true, msg: "APK installed", severity: "success", closeSnackbar: closeSnackbar});
         }
         catch (err){
@@ -212,7 +212,7 @@ const Toolbox = () => {
             const forwardParams = {
                 'portNumber': portNumber.current.value ?? "0",
             }
-            await axios.post(`${BACKEND_ENDPOINT.CORE_PREFIX}${instances[currentInstance].address}:${BACKEND_ENDPOINT.CORE_PORT}${BACKEND_ENDPOINT.PATH_FORWARD}`, forwardParams);
+            await axios.post(`${BACKEND_ENDPOINT.CORE_PREFIX}${instances[currentInstance].address}:${instances[currentInstance].core_port}${BACKEND_ENDPOINT.PATH_FORWARD}`, forwardParams);
             setSnackbarData({open: true, msg: "Port Forwarded", severity: "success", closeSnackbar: closeSnackbar});
         }
         catch (err){

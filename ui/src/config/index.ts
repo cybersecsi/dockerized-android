@@ -1,8 +1,6 @@
 export const BACKEND_ENDPOINT: { [properties: string ]: string } = {
     CORE_PREFIX: "http://",
-    CORE_PORT: "4242",
     VNC_PREFIX: "ws://",
-    VNC_PORT: "6080",
     PATH_FEATURES: "/api/features",
     PATH_TERMINAL: "/api/terminal",
     PATH_CWD: "/api/cwd",

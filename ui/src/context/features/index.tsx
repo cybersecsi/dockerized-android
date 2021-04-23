@@ -23,7 +23,7 @@ const FeaturesProvider = ({ children }: any) => {
             }
 
             try {
-                const backendResponse = await axios.get(`${BACKEND_ENDPOINT.CORE_PREFIX}${instances[currentInstance].address}:${BACKEND_ENDPOINT.CORE_PORT}${BACKEND_ENDPOINT.PATH_FEATURES}`);
+                const backendResponse = await axios.get(`${BACKEND_ENDPOINT.CORE_PREFIX}${instances[currentInstance].address}:${instances[currentInstance].core_port}${BACKEND_ENDPOINT.PATH_FEATURES}`);
                 const _availableFeatures: IFeatures = backendResponse.data;
                 console.log("Got available features:")
                 console.log(_availableFeatures)

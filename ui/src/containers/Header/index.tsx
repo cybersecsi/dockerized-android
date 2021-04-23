@@ -29,6 +29,8 @@ const Header = () => {
     const instanceManagerAddressRef = createRef<any>();
     const manualInstanceNameRef = createRef<any>();
     const manualInstanceAddressRef = createRef<any>();
+    const manualInstanceCorePortRef = createRef<any>();
+    const manualInstanceVncPortRef = createRef<any>();
 
     useEffect(() => {
         openSetupModal();
@@ -55,12 +57,17 @@ const Header = () => {
     }
     
     const connectToInstance = () => {
-        if(!manualInstanceNameRef.current || !manualInstanceAddressRef.current){
+        if(!manualInstanceNameRef.current || !manualInstanceAddressRef.current || !manualInstanceCorePortRef.current || !manualInstanceVncPortRef.current){
             setSnackbarData({open: true, msg: "Instance info not provided", severity: "error", closeSnackbar: closeSnackbar});
             return;
         }
 
-        addInstance({name:manualInstanceNameRef.current?.value, address: manualInstanceAddressRef.current?.value})
+        addInstance({
+            name:manualInstanceNameRef.current?.value, 
+            address: manualInstanceAddressRef.current?.value, 
+            core_port: manualInstanceCorePortRef.current?.value,
+            vnc_port: manualInstanceVncPortRef.current?.value,
+        })
     }
 
     const openSetupModal = () => {
@@ -108,6 +115,8 @@ const Header = () => {
             <form>
                 <TextField id="manual-instance-name" label="Instance Name" variant="outlined" className="full-width mb-3" inputRef={manualInstanceNameRef}/>
                 <TextField id="manual-instance-address" label="Instance Address" variant="outlined" className="full-width mb-3" inputRef={manualInstanceAddressRef}/>
+                <TextField id="core-port-number" label="Core port number" variant="outlined" className="full-width mb-3" inputRef={manualInstanceCorePortRef}/>
+                <TextField id="vnc-port-number" label="VNC port number" variant="outlined" className="full-width mb-3" inputRef={manualInstanceVncPortRef}/>    
                 <div className="modal-prompt mt-5">
                     <Button variant="contained" color="primary" className="white-space-nowrap" onClick={() => connectToInstance()} startIcon={<PowerIcon />}>Connect</Button>
                     <Button variant="contained" color="primary" className="white-space-nowrap" onClick={() => openSetupModal()} startIcon={<ArrowBackIosIcon />}>Go back</Button>
@@ -126,6 +135,8 @@ const Header = () => {
             <form>
                 <TextField id="manual-instance-name" label="Instance Name" variant="outlined" className="full-width mb-3" inputRef={manualInstanceNameRef}/>
                 <TextField id="manual-instance-address" label="Instance Address" variant="outlined" className="full-width mb-3" inputRef={manualInstanceAddressRef}/>
+                <TextField id="core-port-number" label="Core port number" variant="outlined" className="full-width mb-3" inputRef={manualInstanceCorePortRef}/>
+                <TextField id="vnc-port-number" label="VNC port number" variant="outlined" className="full-width mb-3" inputRef={manualInstanceVncPortRef}/>                
                 <div className="modal-prompt mt-5">
                     <Button variant="contained" color="primary" className="white-space-nowrap" onClick={() => connectToInstance()} startIcon={<PowerIcon />}>Connect</Button>
                     <Button variant="contained" color="primary" className="white-space-nowrap" onClick={() => closeModal()} startIcon={<CancelIcon />}>Close</Button>

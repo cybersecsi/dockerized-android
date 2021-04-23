@@ -16,7 +16,7 @@ const Device = (props: DeviceProps) => {
             {instances && currentInstance !== null && instances[currentInstance] && (
                 <VncScreen
                     scaleViewport
-                    url={`${BACKEND_ENDPOINT.VNC_PREFIX}${instances[currentInstance].address}:${BACKEND_ENDPOINT.VNC_PORT}`}
+                    url={`${BACKEND_ENDPOINT.VNC_PREFIX}${instances[currentInstance].address}:${instances[currentInstance].vnc_port}`}
                     style={{
                         height: "100%",
                     }}
