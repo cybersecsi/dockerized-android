@@ -38,6 +38,10 @@ code {
   flex-wrap: wrap;
 }
 
+.white-space-nowrap{
+  white-space:nowrap;
+}
+
 //Goes to next line
 .break {
   flex-basis: 100%;
@@ -109,23 +113,65 @@ code {
 /* START HEADER */
 
 #header{
-  height: 100px;
-  .header-title{
-    font-family: 'Fredoka One', cursive;
-    font-size: 50px;
-    color: #fff;
+  height: 150px;
+  flex-direction: column;
+  #logo {
+    .header-title{
+      font-family: 'Fredoka One', cursive;
+      font-size: 50px;
+      color: #fff;
+    }
+    .header-logo{
+      height: 50px;
+    }
   }
-  .header-logo{
+
+  #instance-chips{
     height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    .custom-chip {
+      margin-right: 15px;
+      font-size: 14px;
+      color:rgba(0, 0, 0, 0.87);
+    }
+    .selected-chip {
+      background-color: #4eacb0;
+      font-weight: bold;
+      color: #fff!important;
+    }
+    .selected-icon {
+      color: #fff!important;
+    }
+    .add-instance-chip{
+      background-color: #31aa31;
+      color: #fff!important;
+    }
+    .add-instance-icon{
+      color: #fff!important;
+    }
+    .clear-all-chip{
+      background-color: #f50057;
+      color: #fff!important;
+    }
+    .clear-all-icon{
+      color: #fff!important;
+    }
   }
 }
 
 /* END HEADER */
 
+.empty-content{
+  height: calc(100vh - 300px);
+}
+
 /* START CONTENT CONTAINER */
 
 .content-container{
-  width: calc(100% - 100px);
+  width: calc(100% - 150px);
   min-height: calc(100vh - 230px);
   padding: 0 20px;
 }

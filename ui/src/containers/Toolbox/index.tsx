@@ -14,7 +14,7 @@ import ForwardIcon from '@material-ui/icons/Forward';
 import { BACKEND_ENDPOINT } from '../../config';
 
 // Context
-import { useFeatures, useSnackbar } from '../../context';
+import { useFeatures, useSnackbar, useInstances } from '../../context';
 
 // Components
 import { CustomModal, CustomDropzone, CustomTerminal } from '../../components';
@@ -23,6 +23,7 @@ import { CustomModal, CustomDropzone, CustomTerminal } from '../../components';
 import { IDeviceInfo, IFeatures, IModalData } from '../../types';
 
 const Toolbox = () => {
+    const { instances, currentInstance } = useInstances();
     const availableFeatures: IFeatures = useFeatures();
     const { closeSnackbar, setSnackbarData } = useSnackbar();
     const [deviceInfo, setDeviceInfo] = useState<IDeviceInfo | null>();
@@ -41,10 +42,11 @@ const Toolbox = () => {
 
     useEffect(() => {
         async function getDeviceInfo(){
-            console.log(`${BACKEND_ENDPOINT.API}${BACKEND_ENDPOINT.PATH_DEVICE}`)
-
+            if(!instances || currentInstance === null || !instances[currentInstance]){
+                return;
+            }
             try{
-                const deviceInfo = await axios.get(`${BACKEND_ENDPOINT.API}${BACKEND_ENDPOINT.PATH_DEVICE}`);
+                const deviceInfo = await axios.get(`${BACKEND_ENDPOINT.CORE_PREFIX}${instances[currentInstance].address}:${BACKEND_ENDPOINT.CORE_PORT}${BACKEND_ENDPOINT.PATH_DEVICE}`);
                 setDeviceInfo(deviceInfo.data);
             }
             catch (err){
@@ -53,8 +55,11 @@ const Toolbox = () => {
         }
 
         async function getCwd(){
+            if(!instances || currentInstance === null || !instances[currentInstance]){
+                return;
+            }
             try{
-                const nextCwd = await axios.get(`${BACKEND_ENDPOINT.API}${BACKEND_ENDPOINT.PATH_CWD}`);
+                const nextCwd = await axios.get(`${BACKEND_ENDPOINT.CORE_PREFIX}${instances[currentInstance].address}:${BACKEND_ENDPOINT.CORE_PORT}${BACKEND_ENDPOINT.PATH_CWD}`);
                 setCwd(nextCwd.data);
             }
             catch (err){
@@ -62,11 +67,13 @@ const Toolbox = () => {
             }
         }
 
-        getCwd();
-        if(availableFeatures.DEVICEINFO || !deviceInfo){
-            getDeviceInfo();
+        if(currentInstance !== null){
+            getCwd();
+            if(availableFeatures.DEVICEINFO || !deviceInfo){
+                getDeviceInfo();
+            }
         }
-    }, []);
+    }, [currentInstance]);
 
 
     const closeModal = () => {
@@ -74,13 +81,16 @@ const Toolbox = () => {
     }
 
     const rebootDevice = async () => {
+        if(!instances || currentInstance === null || !instances[currentInstance]){
+            return;
+        }
         if(!availableFeatures.REBOOT){
             setSnackbarData({open: true, msg: "This feature is disabled", severity: "error", closeSnackbar: closeSnackbar});
             return;
         }
 
         try{
-            await axios.get(`${BACKEND_ENDPOINT.API}${BACKEND_ENDPOINT.PATH_REBOOT}`);
+            await axios.get(`${BACKEND_ENDPOINT.CORE_PREFIX}${instances[currentInstance].address}:${BACKEND_ENDPOINT.CORE_PORT}${BACKEND_ENDPOINT.PATH_REBOOT}`);
             setSnackbarData({open: true, msg: "Device rebooting...", severity: "success", closeSnackbar: closeSnackbar});
         }
         catch (err){
@@ -119,6 +129,9 @@ const Toolbox = () => {
     }
 
     const sendSMS = async () => {
+        if(!instances || currentInstance === null || !instances[currentInstance]){
+            return;
+        }
         if(!availableFeatures.SMS){
             setSnackbarData({open: true, msg: "This feature is disabled", severity: "error", closeSnackbar: closeSnackbar});
             return;
@@ -135,7 +148,7 @@ const Toolbox = () => {
         }
         
         try{           
-            await axios.post(`${BACKEND_ENDPOINT.API}${BACKEND_ENDPOINT.PATH_SMS}`, smsParams);
+            await axios.post(`${BACKEND_ENDPOINT.CORE_PREFIX}${instances[currentInstance].address}:${BACKEND_ENDPOINT.CORE_PORT}${BACKEND_ENDPOINT.PATH_SMS}`, smsParams);
             setSnackbarData({open: true, msg: "SMS sent", severity: "success", closeSnackbar: closeSnackbar});
         }
         catch (err){
@@ -145,6 +158,9 @@ const Toolbox = () => {
     }
 
     const installAPK = async () => {
+        if(!instances || currentInstance === null || !instances[currentInstance]){
+            return;
+        }
         if(!availableFeatures.APK){
             setSnackbarData({open: true, msg: "This feature is disabled", severity: "error", closeSnackbar: closeSnackbar});
             return;
@@ -153,7 +169,7 @@ const Toolbox = () => {
         const formData = new FormData();
         formData.append('file', fileData); // appending file
         try{
-            await axios.post(`${BACKEND_ENDPOINT.API}${BACKEND_ENDPOINT.PATH_APK}`, formData);
+            await axios.post(`${BACKEND_ENDPOINT.CORE_PREFIX}${instances[currentInstance].address}:${BACKEND_ENDPOINT.CORE_PORT}${BACKEND_ENDPOINT.PATH_APK}`, formData);
             setSnackbarData({open: true, msg: "APK installed", severity: "success", closeSnackbar: closeSnackbar});
         }
         catch (err){
@@ -184,6 +200,9 @@ const Toolbox = () => {
     }
 
     const portForward = async () => {
+        if(!instances || currentInstance === null || !instances[currentInstance]){
+            return;
+        }
         if(!availableFeatures.FORWARD){
             setSnackbarData({open: true, msg: "This feature is disabled", severity: "error", closeSnackbar: closeSnackbar});
             return;
@@ -193,7 +212,7 @@ const Toolbox = () => {
             const forwardParams = {
                 'portNumber': portNumber.current.value ?? "0",
             }
-            await axios.post(`${BACKEND_ENDPOINT.API}${BACKEND_ENDPOINT.PATH_FORWARD}`, forwardParams);
+            await axios.post(`${BACKEND_ENDPOINT.CORE_PREFIX}${instances[currentInstance].address}:${BACKEND_ENDPOINT.CORE_PORT}${BACKEND_ENDPOINT.PATH_FORWARD}`, forwardParams);
             setSnackbarData({open: true, msg: "Port Forwarded", severity: "success", closeSnackbar: closeSnackbar});
         }
         catch (err){

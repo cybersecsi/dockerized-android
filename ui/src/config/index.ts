@@ -1,6 +1,8 @@
 export const BACKEND_ENDPOINT: { [properties: string ]: string } = {
-    API: "http://localhost:4242",
-    VNC: "ws://localhost:6080",
+    CORE_PREFIX: "http://",
+    CORE_PORT: "4242",
+    VNC_PREFIX: "ws://",
+    VNC_PORT: "6080",
     PATH_FEATURES: "/api/features",
     PATH_TERMINAL: "/api/terminal",
     PATH_CWD: "/api/cwd",
@@ -9,6 +11,10 @@ export const BACKEND_ENDPOINT: { [properties: string ]: string } = {
     PATH_SMS: "/api/sms",
     PATH_APK: "/api/apk",
     PATH_FORWARD: "/api/forward",
+}
+
+export const INSTANCE_MANAGER_ENDPOINT: { [properties: string ]: string } = {
+    PATH_INSTANCES: "/api/instances",
 }
 
 export const CREDITS: { [properties: string ]: string } = {

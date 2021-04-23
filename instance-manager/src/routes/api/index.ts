@@ -28,8 +28,8 @@ export default (app: express.Router) => {
     api.get('/instances', defaultMiddlewares, async (req: any, res: any) => {
         Logger.info("Received request on /api/instances");
         try {
-            const instances: IInstances = await getInstances();
-            res.send(instances)
+            const instancesObject: IInstances = await getInstances();
+            res.send(instancesObject.instances)
         }
         catch (error) {
             Logger.error('Error in GET /api/instances')

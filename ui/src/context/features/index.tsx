@@ -7,15 +7,23 @@ import { BACKEND_ENDPOINT } from '../../config';
 // Types
 import { IFeatures } from '../../types';
 
+// Context
+import { useInstances } from '../instances';
+
 const FeaturesContext = createContext<IFeatures | null>(null);
 
 const FeaturesProvider = ({ children }: any) => {
+    const { instances, currentInstance } = useInstances();
     const [ availableFeatures, setAvailableFeatures ] = useState<IFeatures>({TERMINAL: false, APK: false, SMS: false, FORWARD: false, DEVICEINFO: false, REBOOT: false});
 
     useEffect(() => {
         const getFeatures = async () => {
+            if(!instances || currentInstance === null || !instances[currentInstance]){
+                return;
+            }
+
             try {
-                const backendResponse = await axios.get(`${BACKEND_ENDPOINT.API}${BACKEND_ENDPOINT.PATH_FEATURES}`);
+                const backendResponse = await axios.get(`${BACKEND_ENDPOINT.CORE_PREFIX}${instances[currentInstance].address}:${BACKEND_ENDPOINT.CORE_PORT}${BACKEND_ENDPOINT.PATH_FEATURES}`);
                 const _availableFeatures: IFeatures = backendResponse.data;
                 console.log("Got available features:")
                 console.log(_availableFeatures)
@@ -26,8 +34,10 @@ const FeaturesProvider = ({ children }: any) => {
             }
         }
 
-        getFeatures();
-    }, [])
+        if(currentInstance !== null){
+            getFeatures();
+        }
+    }, [currentInstance])
 
     return (
         <FeaturesContext.Provider

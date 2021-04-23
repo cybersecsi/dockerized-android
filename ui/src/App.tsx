@@ -1,18 +1,14 @@
 import {useEffect} from 'react';
-import Box from '@material-ui/core/Box';
-import Grid from '@material-ui/core/Grid';
+
 
 // Containers
-import { Header, Device, Toolbox, Footer } from './containers';
+import { Header, Content, Footer } from './containers';
 
 // Cross Screen
 import CrossScreen from './cross-screen';
 
-// Config
-import { GRAPHIC } from './config';
-
 // Providers
-import { FeaturesProvider, SnackbarProvider } from './context';
+import { FeaturesProvider, SnackbarProvider, InstancesProvider } from './context';
 
 const App = () => {
 
@@ -26,26 +22,20 @@ const App = () => {
   }, []);
 
   return (
-    <FeaturesProvider>
-      <SnackbarProvider>
-        {/* Cross Screen component */}
-        <CrossScreen />
+    <SnackbarProvider>
+      <InstancesProvider>
+        <FeaturesProvider>
+          {/* Cross Screen component */}
+          <CrossScreen />
 
-        {/* UI structure */}
-        <Header />
-        <Box className="content-container">
-          <Grid container justify="center" spacing={3}>
-            <Grid item xs={6}>
-              <Device numCol={GRAPHIC.NUM_COL}/>
-            </Grid>
-            <Grid item xs={6} className="flex column">
-              <Toolbox/>
-            </Grid>
-          </Grid>
-        </Box>
-        <Footer />
-      </SnackbarProvider>
-    </FeaturesProvider>
+          {/* UI structure */}
+          <Header />
+          <Content/>
+          <Footer />
+  
+        </FeaturesProvider>
+      </InstancesProvider>
+    </SnackbarProvider>
   );
 }
 
