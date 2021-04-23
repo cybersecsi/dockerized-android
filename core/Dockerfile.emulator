@@ -86,9 +86,6 @@ ENV DISPLAY=:0 \
     SCREEN_DEPTH=24+32 \
     LOCAL_PORT=5900 \
     TARGET_PORT=6080 \
-    TIMEOUT=1 \
-    VIDEO_PATH=/tmp/video \
-    LOG_PATH=/var/log/supervisor \
     NODE_ENV=production \
     CUSTOM_APP_DEFAULT_PORT=4242 
 
@@ -100,22 +97,23 @@ ARG API_LEVEL=21
 ARG PROCESSOR=x86
 ARG SYS_IMG=x86
 ARG IMG_TYPE=google_apis
-ARG BROWSER=android
-ARG CHROME_DRIVER=2.40
-ARG GOOGLE_PLAY_SERVICE=12.8.74
-ARG GOOGLE_PLAY_STORE=11.0.50
 ENV ANDROID_VERSION=$ANDROID_VERSION \
     API_LEVEL=$API_LEVEL \
     PROCESSOR=$PROCESSOR \
     SYS_IMG=$SYS_IMG \
     IMG_TYPE=$IMG_TYPE \
-    BROWSER=$BROWSER \
-    CHROME_DRIVER=$CHROME_DRIVER \
-    GOOGLE_PLAY_SERVICE=$GOOGLE_PLAY_SERVICE \
-    GOOGLE_PLAY_STORE=$GOOGLE_PLAY_STORE \
     APP_TYPE=Emulator \
     ANDROID_HOME=/root
 ENV PATH ${PATH}:${ANDROID_HOME}/build-tools
+
+# The following variables are used to set the availability of backend features
+# In the backend ('core/src/config/index.ts') these features are automatically available if not specified
+# (You have to set these only to DISABLE these features)
+# ENV TERMINAL
+# ENV APK
+# ENV FORWARD
+# ENV REBOOT
+# ENV SMS
 
 #S6-Overlay
 ADD https://github.com/just-containers/s6-overlay/releases/download/v2.2.0.1/s6-overlay-amd64-installer /tmp/
@@ -123,7 +121,6 @@ RUN chmod +x /tmp/s6-overlay-amd64-installer && /tmp/s6-overlay-amd64-installer 
 
 RUN bash - setup_lts.x && rm setup_lts.x && apt-get -qqy update && apt-get -qqy install --no-install-recommends \
     openjdk-8-jdk \
-    supervisor \
     x11vnc \
     nodejs \
     net-tools \

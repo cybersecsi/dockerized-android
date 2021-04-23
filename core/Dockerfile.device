@@ -78,17 +78,23 @@ ENV DISPLAY=:0 \
     SCREEN=0 \
     SCREEN_WIDTH=1600 \
     SCREEN_HEIGHT=900 \
-    SCREEN_DEPTH=16 \
-    VIDEO_PATH=/tmp/video \
-    LOG_PATH=/var/log/supervisor \
+    SCREEN_DEPTH=24+32 \
     APP_TYPE=Device \
     LOCAL_PORT=5900 \
     TARGET_PORT=6080 \
     NODE_ENV=production \
     CUSTOM_APP_DEFAULT_PORT=4242 \
     REAL_DEVICE=true \
-    browser=android \
     ANDROID_HOME=/root
+
+# The following variables are used to set the availability of backend features
+# In the backend ('core/src/config/index.ts') these features are automatically available if not specified
+# (You have to set these only to DISABLE these features)
+# ENV TERMINAL
+# ENV APK
+# ENV FORWARD
+# ENV REBOOT
+# ENV SMS
 
 #S6-Overlay
 ADD https://github.com/just-containers/s6-overlay/releases/download/v2.2.0.1/s6-overlay-amd64-installer /tmp/
@@ -97,7 +103,6 @@ RUN chmod +x /tmp/s6-overlay-amd64-installer && /tmp/s6-overlay-amd64-installer 
 RUN bash - setup_lts.x && rm setup_lts.x && apt-get -qqy update && DEBIAN_FRONTEND=noninteractive apt-get -qqy install --no-install-recommends \
     openjdk-8-jdk \
     curl \
-    supervisor \
     nodejs \
     x11vnc \
     net-tools \
