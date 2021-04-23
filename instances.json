@@ -1,0 +1,10 @@
+{
+    "instances": [
+        {
+            "name": "OnePlus 5T",
+            "address": "193.21.1.2",
+            "core_port": "4242",
+            "vnc_port": "6080"
+        }
+    ]
+}

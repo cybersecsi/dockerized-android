@@ -5,7 +5,7 @@
 # First stage: build frontend
 FROM node:lts-alpine as stage1
 WORKDIR /usr/src/frontend
-COPY frontend .
+COPY . .
 RUN yarn install && yarn run build
 
 #################################

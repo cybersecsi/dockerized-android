@@ -63,9 +63,9 @@ export default (app: express.Router) => {
             DEVICEINFO: FEATURES.DEVICEINFO,
             TERMINAL: FEATURES.TERMINAL,
             APK: FEATURES.APK,
-            SMS: FEATURES.SMS,
-            FORWARD: FEATURES.FORWARD,
-            REBOOT: FEATURES.REBOOT,
+            SMS: process.env.REAL_DEVICE !== undefined ? false : FEATURES.SMS,
+            FORWARD: process.env.REAL_DEVICE !== undefined ? false : FEATURES.FORWARD,
+            REBOOT: process.env.REAL_DEVICE !== undefined ? false : FEATURES.REBOOT,
         }
         res.send(availableFeatures);
     })
