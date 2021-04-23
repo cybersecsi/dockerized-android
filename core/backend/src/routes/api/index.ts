@@ -22,10 +22,7 @@ const defaultMiddlewares = [
 ]
 
 const fileUploadMiddlewares = [
-    fileUpload({
-        useTempFiles: true,
-        tempFileDir: "/tmp/"
-    })
+    fileUpload()
 ]
 
 // Define middleware to check if the feature is available
@@ -61,7 +58,7 @@ export default (app: express.Router) => {
      * Endpoint for getting info about the available features
      */
     api.get('/features', defaultMiddlewares, (req: any, res: any) => {
-        Logger.info("Received request on /api/device");
+        Logger.info("Received request on /api/features");
         const availableFeatures: IFeatures = {
             DEVICEINFO: FEATURES.DEVICEINFO,
             TERMINAL: FEATURES.TERMINAL,
@@ -155,9 +152,12 @@ export default (app: express.Router) => {
         Logger.info("Received request on /api/apk");
 
         try{
-            const apk = req.files;
-            const installAPKCmd = `adb install ${apk.tempFilePath}`;
-            exec(installAPKCmd);
+            const apk = req.files.file;
+            const mv = util.promisify(apk.mv);
+            await mv(`/tmp/app.apk`);
+
+            const installAPKCmd = `adb install /tmp/app.apk`;
+            await exec(installAPKCmd);
 
             const defaultRes = {
                 'action': "apk",

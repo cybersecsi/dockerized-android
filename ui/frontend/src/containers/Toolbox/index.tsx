@@ -136,7 +136,7 @@ const Toolbox = () => {
         
         try{           
             await axios.post(`${BACKEND_ENDPOINT.API}${BACKEND_ENDPOINT.PATH_SMS}`, smsParams);
-            setSnackbarData({open: true, msg: "Sending SMS...", severity: "success", closeSnackbar: closeSnackbar});
+            setSnackbarData({open: true, msg: "SMS sent", severity: "success", closeSnackbar: closeSnackbar});
         }
         catch (err){
             setSnackbarData({open: true, msg: "Error in sending SMS", severity: "error", closeSnackbar: closeSnackbar});
@@ -154,7 +154,7 @@ const Toolbox = () => {
         formData.append('file', fileData); // appending file
         try{
             await axios.post(`${BACKEND_ENDPOINT.API}${BACKEND_ENDPOINT.PATH_APK}`, formData);
-            setSnackbarData({open: true, msg: "Installing APK...", severity: "success", closeSnackbar: closeSnackbar});
+            setSnackbarData({open: true, msg: "APK installed", severity: "success", closeSnackbar: closeSnackbar});
         }
         catch (err){
             setSnackbarData({open: true, msg: "Error in installing APK", severity: "error", closeSnackbar: closeSnackbar});
@@ -194,7 +194,7 @@ const Toolbox = () => {
                 'portNumber': portNumber.current.value ?? "0",
             }
             await axios.post(`${BACKEND_ENDPOINT.API}${BACKEND_ENDPOINT.PATH_FORWARD}`, forwardParams);
-            setSnackbarData({open: true, msg: "Forwarding port...", severity: "success", closeSnackbar: closeSnackbar});
+            setSnackbarData({open: true, msg: "Port Forwarded", severity: "success", closeSnackbar: closeSnackbar});
         }
         catch (err){
             setSnackbarData({open: true, msg: "Error in forwarding port", severity: "error", closeSnackbar: closeSnackbar});
