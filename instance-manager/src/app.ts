@@ -14,10 +14,6 @@ const DEFAULT_PORT = process.env.PORT || 7373;
 ******************
 */
 const startBackend = async () => {
-
-    console.log(process.env.NODE_ENV)
-    console.log(NODE_ENV)
-
 	const app = express();
 	await Loaders(app);
 	app.listen(DEFAULT_PORT, () => {

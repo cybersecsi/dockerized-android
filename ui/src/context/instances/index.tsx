@@ -95,7 +95,7 @@ const InstancesProvider = ({ children }: any) => {
 
     const addInstance = (_instance: IInstance) => {
         const _id: number = instances ? instances.length : 0;
-        const _instances: InstanceWithID[] = [{..._instance, id: _id}].concat(instances ?? []);
+        const _instances: InstanceWithID[] = instances && instances?.length > 0 ? instances.concat([{..._instance, id: _id}]) : [{..._instance, id: _id}];
         setInstances(_instances);
         setCurrentInstance(_id);
         // Set session storage
