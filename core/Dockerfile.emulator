@@ -84,14 +84,11 @@ ENV DISPLAY=:0 \
     SCREEN_WIDTH=1600 \
     SCREEN_HEIGHT=900 \
     SCREEN_DEPTH=24+32 \
-    LOCAL_PORT=5900 \
     TARGET_PORT=6080 \
     NODE_ENV=production \
     CUSTOM_APP_DEFAULT_PORT=4242 
 
-#======================
 # Install SDK packages
-#======================
 ARG ANDROID_VERSION=5.0.1
 ARG API_LEVEL=21
 ARG PROCESSOR=x86
@@ -102,7 +99,6 @@ ENV ANDROID_VERSION=$ANDROID_VERSION \
     PROCESSOR=$PROCESSOR \
     SYS_IMG=$SYS_IMG \
     IMG_TYPE=$IMG_TYPE \
-    APP_TYPE=Emulator \
     ANDROID_HOME=/root
 ENV PATH ${PATH}:${ANDROID_HOME}/build-tools
 
@@ -140,33 +136,22 @@ RUN yes | sdkmanager --licenses && \
     echo y | sdkmanager "platform-tools" && \
     echo y | sdkmanager "platforms;android-${API_LEVEL}" "system-images;android-${API_LEVEL};${IMG_TYPE};${SYS_IMG}" "emulator"
  
-#=============
 # Set WORKDIR
-#=============
 WORKDIR /root/dockerized-android
 
-#===============
 # Expose Ports
-#---------------
 # 5555: ADB connection port
 # 4242: REST API
 # 6080: Websockify
-#===============
 EXPOSE 5555 4242 6080
 
-#======================
 # Add x11vnc config file
-#======================
 COPY configs/x11vnc.pref /etc/apt/preferences.d/
 
-#======================
 # Add Emulator Devices
-#======================
 COPY devices /root/devices
 
-#======================
 # Add utils
-#======================
 COPY utils /root/dockerized-android/utils
 RUN chmod -R +x /root/dockerized-android/utils
 

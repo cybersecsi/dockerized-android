@@ -79,8 +79,6 @@ ENV DISPLAY=:0 \
     SCREEN_WIDTH=1600 \
     SCREEN_HEIGHT=900 \
     SCREEN_DEPTH=24+32 \
-    APP_TYPE=Device \
-    LOCAL_PORT=5900 \
     TARGET_PORT=6080 \
     NODE_ENV=production \
     CUSTOM_APP_DEFAULT_PORT=4242 \
@@ -119,36 +117,25 @@ RUN bash - setup_lts.x && rm setup_lts.x && apt-get -qqy update && DEBIAN_FRONTE
  && apt-get clean all \
  && rm -rf /var/lib/apt/lists/*
 
-
-
-#=======
 # Install platform-tools
-#=======
 RUN yes | sdkmanager --licenses && \
     echo y | sdkmanager "platform-tools"
 
-#=============
 # Set WORKDIR
-#=============
 WORKDIR /root/dockerized-android
 
-#===============
 # Expose Ports
-#---------------
 # 5555: ADB connection port
 # 4242: REST API
 # 6080: Websockify
-#===============
 EXPOSE 5555 4242 6080
 
-#======================
 # Add x11vnc config file
-#======================
+
 COPY configs/x11vnc.pref /etc/apt/preferences.d/
 
-#======================
+
 # Add utils
-#======================
 COPY utils /root/dockerized-android/utils
 RUN chmod -R +x /root/dockerized-android/utils
 
