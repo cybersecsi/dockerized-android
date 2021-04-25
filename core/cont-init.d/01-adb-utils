@@ -15,13 +15,15 @@ function wait_emulator_to_be_ready () {
 function wait_device_to_be_authorized () {
   device_authorized=false
   while [ "$device_authorized" == false ]; do
-    if [ -z "$REAL_DEVICE_SERIAL"]; then
-      status="$(adb devices | grep ${REAL_DEVICE_SERIAL}) | sed 's/^[^ ]* //')"
+    if [ ! -z "$REAL_DEVICE_SERIAL"]; then
+      adbLine="$(adb devices | grep ${REAL_DEVICE_SERIAL})"
+      status="$(echo $adbLine | sed 's/^[^ ]* //'))"
     else
-      status="$(adb devices 2>&1 | tail -n +2 | sed '/^$/d' | sed '/^emulator/d' | sed 's/^[^ ]* //')"
+      adbLine="$(adb devices 2>&1 | tail -n +2 | sed '/^$/d' | sed '/^emulator/d')"
+      status="$(echo $adbLine | sed 's/^[^ ]* //')"
     fi
 
-    if [ "$status" != "unauthorized" ]; then
+    if [ "$status" == "device" ]; then
       device_authorized=true
     else
       sleep 1
@@ -83,7 +85,6 @@ function exec_utils () {
         sleep 1
     fi
 }
-
 
 if [ "$REAL_DEVICE" == true ]; then
   echo "Real device, starting adb server"
