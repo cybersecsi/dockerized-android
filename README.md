@@ -2,7 +2,7 @@
   <img id="header" src="./docs/dockerized-android-logo.png" />
 </p>
 
-**Dockerized Android** is a container-based framework that allows to execute and Android Emulator inside Docker and control it through a browser. This project has been developed in order to provide a starting point for integrating mobile security components into Cyber Ranges but it can be used for any purpose. Anyway, for development and testing purposes the project suggested is (docker-android)[https://github.com/budtmo/docker-android].
+**Dockerized Android** is a container-based framework that allows to execute and Android Emulator inside Docker and control it through a browser. This project has been developed in order to provide a starting point for integrating mobile security components into Cyber Ranges but it can be used for any purpose. Anyway, for development and testing purposes the project suggested is [docker-android](https://github.com/budtmo/docker-android).
 
 <p align="center">
   <img id="showcase" src="./docs/ui-component.png" />
@@ -118,7 +118,7 @@ To use the Core for Real Device on OS X you may:
 - Use the adb of the host
 - Use wireless connection
 
-For the wireless connection Google provides a simple (tutorial)[https://developer.android.com/things/hardware/wifi-adb]. To connect to the host adb from within the container you have to manually enter inside the container and run:
+For the wireless connection Google provides a simple [tutorial](https://developer.android.com/things/hardware/wifi-adb). To connect to the host adb from within the container you have to manually enter inside the container and run:
 ```
 adb -H host.docker.internal devices
 ```
