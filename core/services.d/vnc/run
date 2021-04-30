@@ -1,0 +1,49 @@
+#!/usr/bin/with-contenv bash
+
+function wait_emulator_to_be_ready () {
+  boot_completed=false
+  while [ "$boot_completed" == false ]; do
+    status="$(adb -e wait-for-device shell getprop sys.boot_completed | tr -d '\r')"
+    if [ "$status" == "1" ]; then
+      boot_completed=true
+    else
+      sleep 1
+    fi      
+  done
+}
+
+function wait_real_device_screen_to_be_ready () {
+  screen_copy_active=false
+  while [ "$screen_copy_active" == false ]; do
+    windowid="$(xwininfo -root -tree | grep scrcpy | awk '{print $1}')"
+    if [ "$windowid" == "" ]; then
+      echo "scrcpy is not active yet"
+      sleep 1
+    else
+      screen_copy_active=true
+    fi
+  done
+}
+
+function set_vnc_with_windowid_emulator () {
+  windowid="$(xwininfo -root -tree | grep Android | awk '{print $1}')"
+  vnc="/usr/bin/x11vnc -id ${windowid} -forever -shared"
+  echo "Executing vnc on windowID ${windowid}"
+  ${vnc}
+}
+
+function set_vnc_with_windowid_real_device () {
+  windowid="$(xwininfo -root -tree | grep scrcpy | awk '{print $1}')"
+  vnc="/usr/bin/x11vnc -id ${windowid} -forever -shared"
+  echo "Executing vnc on windowID ${windowid}"
+  ${vnc}
+}
+
+if [ "$REAL_DEVICE" == true ]; then
+  wait_real_device_screen_to_be_ready
+  set_vnc_with_windowid_real_device
+else
+  wait_emulator_to_be_ready
+  sleep 1
+  set_vnc_with_windowid_emulator
+fi

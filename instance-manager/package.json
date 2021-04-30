@@ -1,0 +1,27 @@
+{
+  "name": "instance-manager",
+  "version": "1.0.0",
+  "description": "Manager for multiple dockerized-android-core",
+  "main": "index.js",
+  "author": "effesociety",
+  "scripts": {
+    "start": "ts-node ./src/app.ts",
+    "dev": "nodemon",
+    "build": "tsc"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@types/cors": "^2.8.10",
+    "@types/express": "^4.17.11",
+    "@types/joi": "^17.2.3",
+    "@types/node": "^14.14.41",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "joi": "^17.4.0",
+    "moment": "^2.29.1",
+    "typescript": "^4.2.4"
+  },
+  "devDependencies": {
+    "ts-node": "^9.1.1"
+  }
+}

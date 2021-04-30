@@ -1,0 +1,3 @@
+#!/usr/bin/with-contenv bash
+
+/opt/websockify/run $TARGET_PORT localhost:5900

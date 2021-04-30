@@ -1,0 +1,37 @@
+#!/usr/bin/with-contenv bash
+
+function check_if_adb_restart_needed () {
+  if [ -z "$REAL_DEVICE_SERIAL"]; then
+    adbLine="$(adb devices | grep ${REAL_DEVICE_SERIAL})"
+    status="$(echo $adbLine | sed 's/^[^ ]* //'))"
+  else
+    adbLine="$(adb devices 2>&1 | tail -n +2 | sed '/^$/d' | sed '/^emulator/d')"
+    status="$(echo $adbLine | sed 's/^[^ ]* //')"
+  fi
+
+  if [ "$status" == "unauthorized" ]; then
+    adb kill-server
+  elif [ -z "${status//[$'\t\r\n ']}" ]; then
+    echo "No device attached, if it is attached try unplug and plug again or verify USB debug settings"
+    adb kill-server
+  fi
+}
+
+echo "Starting android screen copy..."
+check_if_device_accessible
+screen_copy_active=false
+while [ "$screen_copy_active" == false ]; do
+  windowid="$(xwininfo -root -tree | grep scrcpy | awk '{print $1}')"
+  if [ "$windowid" == "" ]; then
+    # Try to start scrcpy
+    echo "Starting scrcpy"
+    scrcpy 
+    sleep 2
+    # Check if the adb restart is needed in order to ask again authorization
+    check_if_adb_restart_needed
+    sleep 2
+  else
+    echo "scrcpy started"
+    screen_copy_active=true
+  fi
+done

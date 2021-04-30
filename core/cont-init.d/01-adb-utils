@@ -1,0 +1,93 @@
+#!/usr/bin/with-contenv bash
+
+function wait_emulator_to_be_ready () {
+  boot_completed=false
+  while [ "$boot_completed" == false ]; do
+    status="$(adb -e wait-for-device shell getprop sys.boot_completed | tr -d '\r')"
+    if [ "$status" == "1" ]; then
+      boot_completed=true
+    else
+      sleep 1
+    fi      
+  done
+}
+
+function wait_device_to_be_authorized () {
+  device_authorized=false
+  while [ "$device_authorized" == false ]; do
+    if [ ! -z "$REAL_DEVICE_SERIAL"]; then
+      adbLine="$(adb devices | grep ${REAL_DEVICE_SERIAL})"
+      status="$(echo $adbLine | sed 's/^[^ ]* //'))"
+    else
+      adbLine="$(adb devices 2>&1 | tail -n +2 | sed '/^$/d' | sed '/^emulator/d')"
+      status="$(echo $adbLine | sed 's/^[^ ]* //')"
+    fi
+
+    if [ "$status" == "device" ]; then
+      device_authorized=true
+    else
+      sleep 1
+    fi
+  done
+}
+
+# All applications to be installed need to be mounted in /root/apk
+function install_on_startup () {
+    # Set ADB option for multiple devices
+    if [ "$REAL_DEVICE" != true ]; then # Emulator
+        ADB_OPTION="-e"
+    elif [ "$REAL_DEVICE" == true ] && [ ! -z "$REAL_DEVICE_SERIAL" ]; then # Real device with serial number set
+        ADB_OPTION="-s ${REAL_DEVICE_SERIAL}"
+    else # Real device without serial number set
+        ADB_OPTION="-d"
+    fi
+
+    for f in /root/dockerized-android/apk/*; do
+        ADB_INSTALL_CMD="adb ${ADB_OPTION} install ${f}"
+        echo $ADB_INSTALL_CMD
+        ${ADB_INSTALL_CMD}
+    done
+}
+
+# Enable unknown sources
+function enable_unknown_sources () {
+    # Set ADB option for multiple devices
+    if [ "$REAL_DEVICE" != true ]; then # Emulator
+        ADB_OPTION="-e"
+    elif [ "$REAL_DEVICE" == true ] && [ ! -z "$REAL_DEVICE_SERIAL" ]; then # Real device with serial number set
+        ADB_OPTION="-s ${REAL_DEVICE_SERIAL}"
+    else # Real device without serial number set
+        ADB_OPTION="-d"
+    fi
+
+    ENABLE_UNKNOWN_SOURCES_CMD="adb ${ADB_OPTION} shell settings put secure install_non_market_apps 1"
+    ${ENABLE_UNKNOWN_SOURCES_CMD}
+}
+
+
+function exec_utils () {
+    if [ "$REAL_DEVICE" != true ]; then # Emulator
+        wait_emulator_to_be_ready
+        sleep 1
+    else 
+        wait_device_to_be_authorized
+        sleep 1
+    fi
+
+    if [ "$INSTALL_ON_STARTUP" = true ]; then
+        install_on_startup
+        sleep 1
+    fi
+
+
+    if [ "$ENABLE_UNKNOWN_SOURCES_" = true ]; then
+        enable_unknown_sources
+        sleep 1
+    fi
+}
+
+if [ "$REAL_DEVICE" == true ]; then
+  echo "Real device, starting adb server"
+  adb start-server
+fi
+exec_utils &

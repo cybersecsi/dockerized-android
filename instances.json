@@ -1,0 +1,16 @@
+{
+    "instances": [
+        {
+            "name": "Real Device",
+            "address": "193.21.1.2",
+            "core_port": "4242",
+            "vnc_port": "6080"
+        },
+        {
+            "name": "Emulator 5.0.1",
+            "address": "193.21.1.3",
+            "core_port": "4242",
+            "vnc_port": "6080"
+        }
+    ]
+}
