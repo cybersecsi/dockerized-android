@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Manager for multiple dockerized-android-core",
   "main": "index.js",
-  "author": "effesociety",
+  "author": "secsi",
   "scripts": {
     "start": "ts-node ./src/app.ts",
     "dev": "nodemon",

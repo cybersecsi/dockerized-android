@@ -64,7 +64,7 @@ cd ../core
 if [ -z "${ANDROID_VERSION}" ]; then
 	sudo docker build . -f Dockerfile.emulator 
 else
-	IMAGE_NAME="effesociety/dockerized-android-core-emulator-${ANDROID_VERSION}"
+	IMAGE_NAME="secsi/dockerized-android-core-emulator-${ANDROID_VERSION}"
 	sudo docker build . -f Dockerfile.emulator  -t $IMAGE_NAME \
 		--build-arg ANDROID_VERSION=$ANDROID_VERSION \
 		--build-arg API_LEVEL=$API_LEVEL

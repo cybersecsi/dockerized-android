@@ -2,4 +2,4 @@
 
 #Create docker image
 cd ../core
-sudo docker build . -f Dockerfile.device -t effesociety/dockerized-android-core-real-device
+sudo docker build . -f Dockerfile.device -t secsi/dockerized-android-core-real-device

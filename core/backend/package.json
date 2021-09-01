@@ -8,7 +8,7 @@
     "dev": "nodemon",
     "build": "tsc"
   },
-  "author": "effesociety",
+  "author": "secsi",
   "license": "MIT",
   "dependencies": {
     "@types/node": "^14.14.41",

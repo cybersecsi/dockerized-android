@@ -16,7 +16,7 @@ export const INSTANCE_MANAGER_ENDPOINT: { [properties: string ]: string } = {
 }
 
 export const CREDITS: { [properties: string ]: string } = {
-    GITHUB: "http://github.com/effesociety/",
+    GITHUB: "http://github.com/cybersecsi/",
 }
 
 export const GRAPHIC: { [properties: string ]: number } = {

@@ -77,20 +77,20 @@ The Instance Manager component has the job to provide all the informations(i.e.,
 ## List of Docker images <a name="docker-images"></a>
 | Android Version | API | Image                                              |
 |-----------------|:---:|----------------------------------------------------|
-| 5.0.1           |  21 | effesociety/dockerized-android-core-emulator-5.0.1 |
-| 5.1.1           | 22  | effesociety/dockerized-android-core-emulator-5.1.1 |
-| 6.0             | 23  | effesociety/dockerized-android-core-emulator-6.0   |
-| 7.0             | 24  | effesociety/dockerized-android-core-emulator-7.0   |
-| 7.1.1           | 25  | effesociety/dockerized-android-core-emulator-7.1.1 |
-| 8.0             | 26  | effesociety/dockerized-android-core-emulator-8.0   |
-| 8.1             | 27  | effesociety/dockerized-android-core-emulator-8.1   |
-| 9.0             | 28  | effesociety/dockerized-android-core-emulator-9.0   |
-| 10.0            | 29  | effesociety/dockerized-android-core-emulator-10.0  |
-| 11.0            | 30  | effesociety/dockerized-android-core-emulator-11.0  |
-| -               | -   | effesociety/dockerized-android-core-bare           |
-| -               | -   | effesociety/docker-android-core-real-device        |
+| 5.0.1           |  21 | secsi/dockerized-android-core-emulator-5.0.1 |
+| 5.1.1           | 22  | secsi/dockerized-android-core-emulator-5.1.1 |
+| 6.0             | 23  | secsi/dockerized-android-core-emulator-6.0   |
+| 7.0             | 24  | secsi/dockerized-android-core-emulator-7.0   |
+| 7.1.1           | 25  | secsi/dockerized-android-core-emulator-7.1.1 |
+| 8.0             | 26  | secsi/dockerized-android-core-emulator-8.0   |
+| 8.1             | 27  | secsi/dockerized-android-core-emulator-8.1   |
+| 9.0             | 28  | secsi/dockerized-android-core-emulator-9.0   |
+| 10.0            | 29  | secsi/dockerized-android-core-emulator-10.0  |
+| 11.0            | 30  | secsi/dockerized-android-core-emulator-11.0  |
+| -               | -   | secsi/dockerized-android-core-bare           |
+| -               | -   | secsi/docker-android-core-real-device        |
 
-The *effesociety/dockerized-android-core-bare* does not download any system image and you may mount the folder on your host machine where you have all the SDK folders
+The *secsi/dockerized-android-core-bare* does not download any system image and you may mount the folder on your host machine where you have all the SDK folders
 
 ## How to run <a name="how-to-run"></a>
 In order to see a full example on how to run the platform you may watch the *docker-compose* available in the root directory. This setup contains two different cores and also the **optional** Instance Manager component. Once you understood how it works you may change it to satisfy any needs you have.

@@ -15,7 +15,7 @@ const Footer = () => {
             </Box>
             <div className="break"/>
             <Typography variant="subtitle1" align="center" noWrap className="footer-subtitle">
-                Made with <Favorite fontSize="small" color="secondary" /> by effesociety
+                Made with <Favorite fontSize="small" color="secondary" /> by SecSI
             </Typography>
         </footer>
     )
