@@ -1,0 +1,17 @@
+version: "3.8"
+services:
+    core-real:
+        image: secsi/dockerized-android-core-real-device
+        privileged: true
+        networks:
+            dockerized-android-real-device-net:
+                ipv4_address: 10.0.0.2
+    ui:
+        image: secsi/dockerized-android-ui
+        ports:
+            - "8080:80"
+networks:
+    dockerized-android-real-device-net:
+        ipam:
+            config:
+                - subnet: 10.0.0.1/24

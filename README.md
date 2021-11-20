@@ -1,3 +1,4 @@
+# Dockerized Android
 <p align="center">
   <img id="header" src="./docs/dockerized-android-logo.png" />
 </p>
@@ -8,15 +9,35 @@
   <img id="showcase" src="./docs/ui-component.png" />
 </p>
 
-## Intro
-As stated in the brief description above this project has been created in order to provide a starting point for the introduction of mobile security components into Cyber Ranges. For this reasons the features already developed and the ones that will be added in the feature will help the user to make easier to setup a realistic simulation (for example for security training). This README is quite long, maybe you just wanna skip to the *"How to run"* part.
-1. [Features](#features)
-2. [Architecture](#architecture)
-3. [List of Docker Images](#docker-images)
-4. [How to run](#how-to-run)
-5. [Configuration](#configuration)
+[![Docker](https://img.shields.io/badge/Docker-available-green.svg?style=flat&logo=docker)](https://hub.docker.com/u/secsi)
+[![Maintenance](https://img.shields.io/badge/Maintained-yes-green.svg)](https://github.com/cybersecsi/dockerized-android)
+[![Documentation](https://img.shields.io/badge/Documentation-complete-green.svg?style=flat)](https://github.com/cybersecsi/dockerized-android/blob/main/README.md)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/cybersecsi/dockerized-android/blob/main/LICENSE.md)
 
-## Features <a name="features"></a>
+## Table of contents
+  - [Table of contents](#table-of-contents)
+  - [Introduction](#introduction)
+  - [Features](#features)
+  - [Architecture](#architecture)
+    - [Core Component](#core-component)
+    - [UI Component](#ui-component)
+    - [Instance Manager Component](#instance-manager-component)
+  - [List of Docker images](#list-of-docker-images)
+  - [How to run](#how-to-run)
+    - [Prerequisites](#prerequisites)
+    - [OS compatibility](#os-compatibility)
+    - [OS X Workaround for Real Device](#os-x-workaround-for-real-device)
+    - [Run](#run)
+    - [Build](#build)
+  - [Configuration](#configuration)
+  - [License](#license)
+  - [Who talks about Dockerized Android](#who-talks-about-dockerized-android)
+  - [Credits](#credits)
+
+
+## Introduction
+As stated in the brief description above this project has been created in order to provide a starting point for the introduction of mobile security components into Cyber Ranges. For this reasons the features already developed and the ones that will be added in the feature will help the user to make easier to setup a realistic simulation (for example for security training). This README is quite long, maybe you just wanna skip to the *"How to run"* part.
+## Features
 The following features are currently available:
 - Run an Android Emulator in Docker
 - Control the device through the web browser
@@ -29,6 +50,12 @@ The following features are currently available:
 - Customize startup behaviour (see Configuration section)
 - Easily manage multiple instances
 
+[initial-setup]: <docs/initial-setup.png>
+[instance-manager-setup]: <docs/instance-manager-setup.png>
+[manual-setup]: <docs/manual-setup.png>
+[toolbox]: <docs/toolbox.png>
+[instance-switch]: <docs/instance-switch.png>
+
 | Initial setup   |  Instance Manager Setup  |  Manual Setup  |
 |-----------------|:------------------------:|:--------------:|
 | [initial-setup] | [instance-manager-setup] | [manual-setup] |
@@ -38,7 +65,7 @@ The following features are currently available:
 |------------------|:-----------------:|
 | [toolbox]        | [instance-switch] |
 
-## Architecture <a name="architecture"></a>
+## Architecture
 The project is composed by three main pieces:
 - Dockerized Android **Core**
 - Dockerized Android **UI**
@@ -54,6 +81,7 @@ The Core component is the one that executes all the processes needed to run an A
 It is with no doubt the most complex part becauseit has to manage different processes in order to provide a set of features. The above figure shows a clear distinction between long-lived processes,start processes and util scripts. Besides, this figure shows that there are 6 long-lived processes, this is a little inaccuracy added to provide a general overview of the Core component, in reality there are two different flavours of the Core component:
 - Core for Emulator
 - Core for Real Device
+  
 The main architectural difference is the one regarding the long-lived processess: the Core for Emulator runs the long-lived **emulator** process while the Core for Real Device runs the long-lived **scrcpy** process to display and control the physical device. The other parts are quite similar with just some logic to follow a different behaviour based on the type of the Core component.
 
 ### UI Component
@@ -74,7 +102,7 @@ The Instance Manager component has the job to provide all the informations(i.e.,
 }
 ```
 
-## List of Docker images <a name="docker-images"></a>
+## List of Docker images
 | Android Version | API | Image                                              |
 |-----------------|:---:|----------------------------------------------------|
 | 5.0.1           |  21 | secsi/dockerized-android-core-emulator-5.0.1 |
@@ -92,8 +120,13 @@ The Instance Manager component has the job to provide all the informations(i.e.,
 
 The *secsi/dockerized-android-core-bare* does not download any system image and you may mount the folder on your host machine where you have all the SDK folders
 
-## How to run <a name="how-to-run"></a>
-In order to see a full example on how to run the platform you may watch the *docker-compose* available in the root directory. This setup contains two different cores and also the **optional** Instance Manager component. Once you understood how it works you may change it to satisfy any needs you have.
+## How to run
+In order to see a full example on how to run the platform you may watch the *docker-compose* available in the **examples** directory. This directory contains three different configurations:
+* **docker-compose-core**: setup with a core for a real device;
+* **docker-compose-emulator**: setup with a core for an emulator;
+* **docker-compose-instance-manager**: setup with two different core and also the **optional** Instance Manager component. 
+  
+Once you understood how it works you may change it to satisfy any needs you have.
 
 ### Prerequisites
 Docker and Docker Compose have to be installed on your machine.
@@ -123,22 +156,38 @@ For the wireless connection Google provides a simple [tutorial](https://develope
 adb -H host.docker.internal devices
 ```
 
-### One line command to run 
-The command to start using the framework with two cores and a instance manager is simply:
+### Run
+The commands to start using the framework are as follows:
+1. Firstly, choose a configuration found in the examples folder. For example:
+```bash
+cp ./examples/docker-compose-core.yml docker-compose.yml
 ```
+2. Run with docker-compose:
+```bash
 docker-compose up
 ```
+> More simply you can also use the command: 
+> 
+> ``docker-compose -f ./examples/docker-compose-core.yml up``
 
-[initial-setup]: <docs/initial-setup.png>
-[instance-manager-setup]: <docs/instance-manager-setup.png>
-[manual-setup]: <docs/manual-setup.png>
-[toolbox]: <docs/toolbox.png>
-[instance-switch]: <docs/instance-switch.png>
+All that remains is to navigate through a browser at the following address **http://127.0.0.1:8080** and set the current configuration:
+<p align="center">
+  <img id="architecture" src="./docs/initial-setup.png" />
+</p>
 
+If the *Instance Manager* was **not** used, click on **Manual Setup** and enter the following information:
+1. A name of your choosing for the instance;
+2. IP address of component core declared in docker-compose;
+3. Core port number (**4242** by deafult);
+4. VNC port number (**6080** by default).
+
+> If the **Instance Manager** is used, click on "*Instance Manager*" and just enter the **IP address** and its **port number** (for example, **193.21.1.100:7373**).
+
+That's it! You can use the framework within the browser.
 ### Build
 You may also build the images yourself throught the scripts placed in the *utils* folder
 
-## Configuration <a name="configuration"></a>
+## Configuration
 You may configure some features to customize the setup through ENV variables, the following table provides a list of all of them:
 
 | Component        |         ENV Name        | Default value                | Description                                                                                                                                                                  |
@@ -166,3 +215,12 @@ Finally there is a list of exposed ports by each component:
 | Core             |  6080  | Websockify (for noVNC) |
 | UI               | 80     | Frontend               |
 | Instance Manager | 7373   | REST API               |
+
+## License
+**Dockerized Android** is an open-source and free software released under the [MIT License](/LICENSE.md).
+## Who talks about Dockerized Android
+* SecSI - https://secsi.io/blog/a-container-based-framework-for-android-emulation-and-hacking/
+* KitPloit - https://www.kitploit.com/2021/10/dockerized-android-container-based.html
+## Credits
+This project represents our Master's thesis paper in Computer Engineering at the *University Federico II of Naples*.
+Special thanks to Professor [**Simon Pietro Romano**](https://www.docenti.unina.it/#!/professor/53494d4f4e2050494554524f524f4d414e4f524d4e534e503732413033463833394d/riferimenti) and Engineer [**Francesco Caturano**](https://github.com/catuhub), sources of inspiration for this work.

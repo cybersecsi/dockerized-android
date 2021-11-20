@@ -31,7 +31,7 @@ services:
         volumes:
             - ./instances.json:/usr/src/instance-manager/instances.json
 networks:
-    dockerized-android-net:
+    dockerized-android-instance-manager-net:
         ipam:
             config:
                 - subnet: 193.21.1.1/24

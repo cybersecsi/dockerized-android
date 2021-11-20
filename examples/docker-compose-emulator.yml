@@ -1,0 +1,17 @@
+version: "3.8"
+services:
+    core-emulator:
+        image: secsi/dockerized-android-core-emulator-7.1.1
+        privileged: true
+        networks:
+            dockerized-android-emulator-net:
+                ipv4_address: 10.0.1.2
+    ui:
+        image: secsi/dockerized-android-ui
+        ports:
+            - "8080:80"
+networks:
+    dockerized-android-emulator-net:
+        ipam:
+            config:
+                - subnet: 10.0.1.1/24
