@@ -178,7 +178,7 @@ All that remains is to navigate through a browser at the following address **htt
 If the *Instance Manager* was **not** used, click on **Manual Setup** and enter the following information:
 1. A name of your choosing for the instance;
 2. IP address of component core declared in docker-compose;
-3. Core port number (**4242** by deafult);
+3. Core port number (**4242** by default);
 4. VNC port number (**6080** by default).
 
 > If the **Instance Manager** is used, click on "*Instance Manager*" and just enter the **IP address** and its **port number** (for example, **193.21.1.100:7373**).
@@ -219,8 +219,11 @@ Finally there is a list of exposed ports by each component:
 ## License
 **Dockerized Android** is an open-source and free software released under the [MIT License](/LICENSE.md).
 ## Who talks about Dockerized Android
-* SecSI - https://secsi.io/blog/a-container-based-framework-for-android-emulation-and-hacking/
-* KitPloit - https://www.kitploit.com/2021/10/dockerized-android-container-based.html
+* SecSI 
+  - https://secsi.io/blog/a-container-based-framework-for-android-emulation-and-hacking/
+* KitPloit 
+  - https://www.kitploit.com/2021/10/dockerized-android-container-based.html
+  - https://www.kitploit.com/2021/12/top-20-most-popular-hacking-tools-in.html
 ## Credits
 This project represents our Master's thesis paper in Computer Engineering at the *University Federico II of Naples*.
 Special thanks to Professor [**Simon Pietro Romano**](https://www.docenti.unina.it/#!/professor/53494d4f4e2050494554524f524f4d414e4f524d4e534e503732413033463833394d/riferimenti) and Engineer [**Francesco Caturano**](https://github.com/catuhub), sources of inspiration for this work.
