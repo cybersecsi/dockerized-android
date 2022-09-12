@@ -224,6 +224,23 @@ Finally there is a list of exposed ports by each component:
 * KitPloit 
   - https://www.kitploit.com/2021/10/dockerized-android-container-based.html
   - https://www.kitploit.com/2021/12/top-20-most-popular-hacking-tools-in.html
+
+## Citation  
+If you find this code useful in your research, please, consider citing our paper:  
+
+```
+@inproceedings{Capone2022,
+  doi = {10.1109/icecet55527.2022.9872834},
+  url = {https://doi.org/10.1109/icecet55527.2022.9872834},
+  year = {2022},
+  month = jul,
+  publisher = {{IEEE}},
+  author = {Daniele Capone and Francesco Caturano and Angelo Delicato and Gaetano Perrone and Simon Pietro Romano},
+  title = {Dockerized Android: a container-based platform to build mobile Android scenarios for Cyber Ranges},
+  booktitle = {2022 International Conference on Electrical,  Computer and Energy Technologies ({ICECET})}
+}
+```
+
 ## Credits
 This project represents our Master's thesis paper in Computer Engineering at the *University Federico II of Naples*.
 Special thanks to Professor [**Simon Pietro Romano**](https://www.docenti.unina.it/#!/professor/53494d4f4e2050494554524f524f4d414e4f524d4e534e503732413033463833394d/riferimenti) and Engineer [**Francesco Caturano**](https://github.com/catuhub), sources of inspiration for this work.
